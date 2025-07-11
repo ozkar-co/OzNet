@@ -1,0 +1,172 @@
+<article>
+    <header>
+        <h1>Documentación Técnica</h1>
+        <p>Información detallada sobre la infraestructura de OzNet</p>
+    </header>
+
+    <section>
+        <h2>Arquitectura del Sistema</h2>
+        <p>
+            OzNet está construido sobre una infraestructura distribuida que utiliza ZeroTier para la conectividad 
+            de red y Express.js para servir múltiples aplicaciones web a través de virtual hosts.
+        </p>
+    </section>
+
+    <section>
+        <h2>Componentes Principales</h2>
+        
+        <h3>ZeroTier VPN</h3>
+        <ul>
+            <li><strong>Network ID:</strong> 9bee8941b563441a</li>
+            <li><strong>Rango IP:</strong> 10.147.20.0/24</li>
+            <li><strong>Propósito:</strong> Conectividad segura entre dispositivos</li>
+        </ul>
+
+        <h3>DNS (dnsmasq)</h3>
+        <ul>
+            <li><strong>Servidor:</strong> 10.147.20.1</li>
+            <li><strong>Dominio:</strong> .oznet</li>
+            <li><strong>Propósito:</strong> Resolución de nombres para servicios internos</li>
+        </ul>
+
+        <h3>Web Server (Express.js)</h3>
+        <ul>
+            <li><strong>Framework:</strong> Express.js con virtual hosts</li>
+            <li><strong>Templates:</strong> Handlebars</li>
+            <li><strong>CSS:</strong> PicoCSS</li>
+            <li><strong>Propósito:</strong> Servir múltiples aplicaciones web</li>
+        </ul>
+
+        <h3>Nginx (Reverso Proxy)</h3>
+        <ul>
+            <li><strong>Propósito:</strong> Proxy reverso y SSL termination</li>
+            <li><strong>SSL:</strong> Certificados privados</li>
+            <li><strong>Routing:</strong> Distribución de tráfico por dominio</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Servicios Implementados</h2>
+        
+        <div class="grid">
+            <div>
+                <h4>home.oznet</h4>
+                <ul>
+                    <li>Documentación principal</li>
+                    <li>Guías de configuración</li>
+                    <li>Estado de servicios</li>
+                </ul>
+            </div>
+            <div>
+                <h4>hub.oznet</h4>
+                <ul>
+                    <li>Gestión de servicios</li>
+                    <li>Control de procesos</li>
+                    <li>Monitoreo de estado</li>
+                </ul>
+            </div>
+            <div>
+                <h4>files.oznet</h4>
+                <ul>
+                    <li>Servidor de archivos</li>
+                    <li>Navegación de directorios</li>
+                    <li>Descarga de archivos</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Servicios Planificados</h2>
+        
+        <div class="grid">
+            <div>
+                <h4>mail.oznet</h4>
+                <ul>
+                    <li>Interfaz web de correo</li>
+                    <li>Webmail personalizado</li>
+                    <li>Gestor de correos</li>
+                </ul>
+            </div>
+            <div>
+                <h4>wiki.oznet</h4>
+                <ul>
+                    <li>Servidor Kiwix</li>
+                    <li>Documentación offline</li>
+                    <li>Wikipedia local</li>
+                </ul>
+            </div>
+            <div>
+                <h4>3dprint.oznet</h4>
+                <ul>
+                    <li>OctoPrint</li>
+                    <li>Gestión de impresoras 3D</li>
+                    <li>Monitoreo de impresión</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Configuración de Seguridad</h2>
+        
+        <h3>SSL/TLS</h3>
+        <ul>
+            <li>Certificados privados para cada dominio</li>
+            <li>Configuración automática de HTTPS</li>
+            <li>HSTS habilitado</li>
+        </ul>
+
+        <h3>Firewall</h3>
+        <ul>
+            <li>Acceso restringido a la red ZeroTier</li>
+            <li>Puertos específicos abiertos por servicio</li>
+            <li>Monitoreo de conexiones</li>
+        </ul>
+
+        <h3>Autenticación</h3>
+        <ul>
+            <li>Acceso basado en membresía de ZeroTier</li>
+            <li>Autorización por dispositivo</li>
+            <li>Logs de acceso</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Monitoreo y Mantenimiento</h2>
+        
+        <h3>Logs</h3>
+        <ul>
+            <li>Logs de acceso web (morgan)</li>
+            <li>Logs de ZeroTier</li>
+            <li>Logs de DNS</li>
+        </ul>
+
+        <h3>Backup</h3>
+        <ul>
+            <li>Configuraciones automáticas</li>
+            <li>Datos de servicios críticos</li>
+            <li>Certificados SSL</li>
+        </ul>
+
+        <h3>Actualizaciones</h3>
+        <ul>
+            <li>Actualizaciones automáticas de seguridad</li>
+            <li>Rollback de configuraciones</li>
+            <li>Notificaciones de cambios</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Desarrollo</h2>
+        <p>
+            Este proyecto está desarrollado en Node.js con Express.js. Para contribuir o modificar:
+        </p>
+        <ul>
+            <li>Clona el repositorio</li>
+            <li>Instala dependencias: <code>npm install</code></li>
+            <li>Ejecuta en desarrollo: <code>npm run dev</code></li>
+            <li>Construye para producción: <code>npm start</code></li>
+        </ul>
+    </section>
+</article> 

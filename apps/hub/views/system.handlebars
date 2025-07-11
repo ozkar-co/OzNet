@@ -1,0 +1,143 @@
+<article>
+    <header>
+        <h1>Estado del Sistema</h1>
+        <p>Información detallada sobre el rendimiento del servidor</p>
+    </header>
+
+    <section>
+        <h2>Métricas del Sistema</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>CPU</h3>
+                <div class="stat-value">{{stats.cpu}}%</div>
+                <p>Uso de procesador</p>
+            </div>
+            <div class="stat-card">
+                <h3>Memoria</h3>
+                <div class="stat-value">{{stats.memory}}%</div>
+                <p>Uso de memoria RAM</p>
+            </div>
+            <div class="stat-card">
+                <h3>Disco</h3>
+                <div class="stat-value">{{stats.disk}}%</div>
+                <p>Uso de almacenamiento</p>
+            </div>
+            <div class="stat-card">
+                <h3>Red</h3>
+                <div class="stat-value">{{stats.network}}</div>
+                <p>Dirección IP principal</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Información de la Red</h2>
+        <div class="grid">
+            <div>
+                <h4>ZeroTier Network</h4>
+                <ul>
+                    <li><strong>Network ID:</strong> 9bee8941b563441a</li>
+                    <li><strong>Nombre:</strong> Oz Network</li>
+                    <li><strong>Rango IP:</strong> 10.147.20.0/24</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Servicios de Red</h4>
+                <ul>
+                    <li><strong>DNS:</strong> 10.147.20.1</li>
+                    <li><strong>Web Server:</strong> Puerto 3000</li>
+                    <li><strong>SSL:</strong> Certificados privados</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Procesos del Sistema</h2>
+        <div class="grid">
+            <div>
+                <h4>Servicios Principales</h4>
+                <ul>
+                    <li><strong>OzNet Server:</strong> Express.js con virtual hosts</li>
+                    <li><strong>DNS Server:</strong> dnsmasq</li>
+                    <li><strong>VPN:</strong> ZeroTier One</li>
+                    <li><strong>Proxy:</strong> Nginx (configurado externamente)</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Puertos Abiertos</h4>
+                <ul>
+                    <li><strong>53:</strong> DNS (dnsmasq)</li>
+                    <li><strong>3000:</strong> Web Server (Express)</li>
+                    <li><strong>9993:</strong> ZeroTier</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Acciones del Sistema</h2>
+        <div class="grid">
+            <div>
+                <h4>Reiniciar Servicios</h4>
+                <button onclick="restartSystemServices()" class="outline">Reiniciar Todo</button>
+            </div>
+            <div>
+                <h4>Actualizar Métricas</h4>
+                <button onclick="location.reload()" class="outline">Actualizar</button>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Información Técnica</h2>
+        <div class="grid">
+            <div>
+                <h4>Sistema Operativo</h4>
+                <p>Linux (Ubuntu/Debian)</p>
+            </div>
+            <div>
+                <h4>Node.js</h4>
+                <p>Runtime para aplicaciones web</p>
+            </div>
+            <div>
+                <h4>Express.js</h4>
+                <p>Framework web con virtual hosts</p>
+            </div>
+            <div>
+                <h4>Handlebars</h4>
+                <p>Motor de plantillas</p>
+            </div>
+        </div>
+    </section>
+</article>
+
+<script>
+    // Función para reiniciar servicios del sistema
+    async function restartSystemServices() {
+        if (confirm('¿Estás seguro de que quieres reiniciar todos los servicios del sistema?')) {
+            try {
+                const response = await fetch('/api/services/oznet-home/restart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Servicios reiniciados correctamente');
+                    location.reload();
+                } else {
+                    alert('Error al reiniciar servicios');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+    }
+
+    // Actualizar métricas automáticamente cada 60 segundos
+    setInterval(() => {
+        location.reload();
+    }, 60000);
+</script> 

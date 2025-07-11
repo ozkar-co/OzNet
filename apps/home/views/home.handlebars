@@ -1,0 +1,62 @@
+<article>
+    <header>
+        <h1>OzNet - Red Privada</h1>
+        <p>Bienvenido a tu red privada basada en ZeroTier</p>
+    </header>
+
+    <section>
+        <h2>¿Qué es OzNet?</h2>
+        <p>
+            OzNet es una red privada que funciona sobre la VPN de ZeroTier, proporcionando acceso a múltiples 
+            servicios y herramientas en un entorno seguro y controlado. Todos los servicios utilizan el dominio 
+            <code>.oznet</code> para facilitar el acceso.
+        </p>
+    </section>
+
+    <section>
+        <h2>Servicios Disponibles</h2>
+        <div class="grid">
+            {{#each services}}
+            <div class="service-card">
+                <h3>{{name}}</h3>
+                <p>{{description}}</p>
+                <p>
+                    <span class="status-{{status}}">
+                        {{#if (eq status 'active')}}
+                            ✅ Activo
+                        {{else}}
+                            🚧 Próximamente
+                        {{/if}}
+                    </span>
+                </p>
+                {{#if (eq status 'active')}}
+                    <a href="{{url}}" role="button" class="outline">Acceder</a>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Información de la Red</h2>
+        <div class="grid">
+            <div>
+                <h4>Network ID</h4>
+                <code>9bee8941b563441a</code>
+            </div>
+            <div>
+                <h4>Nombre de la Red</h4>
+                <p>Oz Network</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Configuración</h2>
+        <p>
+            Para conectarte a la red OzNet, necesitas configurar ZeroTier y DNS. 
+            Consulta la <a href="/setup">guía de configuración</a> para obtener instrucciones detalladas.
+        </p>
+        <a href="/setup" role="button">Ver Configuración</a>
+    </section>
+</article> 

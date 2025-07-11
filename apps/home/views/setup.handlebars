@@ -1,0 +1,117 @@
+<article>
+    <header>
+        <h1>Configuración de OzNet</h1>
+        <p>Guía completa para configurar tu conexión a la red privada</p>
+    </header>
+
+    <section>
+        <h2>Requisitos Previos</h2>
+        <ul>
+            <li>ZeroTier One instalado en tu dispositivo</li>
+            <li>Acceso de administrador para configurar DNS</li>
+            <li>Network ID: <code>{{networkId}}</code></li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Paso 1: Instalar ZeroTier</h2>
+        
+        <h3>Linux (Ubuntu/Debian)</h3>
+        <pre><code>curl -s 'https://raw.githubusercontent.com/zerotier/ZeroTierOne/master/doc/contact%40zerotier.com.gpg' | gpg --import && \
+if z=$(curl -s 'https://install.zerotier.com/' | gpg); then echo "$z" | sudo bash; fi</code></pre>
+
+        <h3>Windows</h3>
+        <p>Descarga e instala desde: <a href="https://www.zerotier.com/download/" target="_blank">https://www.zerotier.com/download/</a></p>
+
+        <h3>macOS</h3>
+        <p>Descarga e instala desde: <a href="https://www.zerotier.com/download/" target="_blank">https://www.zerotier.com/download/</a></p>
+    </section>
+
+    <section>
+        <h2>Paso 2: Unirse a la Red</h2>
+        <ol>
+            <li>Abre ZeroTier One</li>
+            <li>Haz clic en "Join Network"</li>
+            <li>Ingresa el Network ID: <code>{{networkId}}</code></li>
+            <li>Espera la autorización del administrador</li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>Paso 3: Configurar DNS</h2>
+        
+        <h3>Configuración del Servidor DNS</h3>
+        <p>El servidor principal de OzNet actúa como DNS para todos los servicios. Necesitas configurar tu sistema para usar este DNS.</p>
+
+        <h4>Linux</h4>
+        <p>Edita <code>/etc/resolv.conf</code> o configura NetworkManager:</p>
+        <pre><code># Agregar al final de /etc/resolv.conf
+nameserver 10.147.20.1</code></pre>
+
+        <h4>Windows</h4>
+        <ol>
+            <li>Abre Configuración de Red</li>
+            <li>Selecciona tu adaptador de red</li>
+            <li>Propiedades → Protocolo Internet versión 4 (TCP/IPv4)</li>
+            <li>Usar las siguientes direcciones DNS: <code>10.147.20.1</code></li>
+        </ol>
+
+        <h4>macOS</h4>
+        <ol>
+            <li>Preferencias del Sistema → Red</li>
+            <li>Selecciona tu conexión de red</li>
+            <li>Avanzado → DNS</li>
+            <li>Agrega: <code>10.147.20.1</code></li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>Paso 4: Verificar Conexión</h2>
+        <p>Una vez configurado, deberías poder acceder a:</p>
+        <ul>
+            <li><a href="http://home.oznet">home.oznet</a> - Esta página</li>
+            <li><a href="http://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
+            <li><a href="http://files.oznet">files.oznet</a> - Servidor de archivos</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Solución de Problemas</h2>
+        
+        <h3>No puedo acceder a los servicios</h3>
+        <ul>
+            <li>Verifica que ZeroTier esté conectado</li>
+            <li>Confirma que el DNS esté configurado correctamente</li>
+            <li>Prueba hacer ping a <code>10.147.20.1</code></li>
+        </ul>
+
+        <h3>DNS no funciona</h3>
+        <ul>
+            <li>Reinicia el servicio de red</li>
+            <li>Limpia la caché DNS: <code>sudo systemctl restart systemd-resolved</code></li>
+            <li>En Windows: <code>ipconfig /flushdns</code></li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Información Técnica</h2>
+        <div class="grid">
+            <div>
+                <h4>Network ID</h4>
+                <code>{{networkId}}</code>
+            </div>
+            <div>
+                <h4>Nombre de la Red</h4>
+                <p>{{networkName}}</p>
+            </div>
+            <div>
+                <h4>Servidor DNS</h4>
+                <code>10.147.20.1</code>
+            </div>
+            <div>
+                <h4>Rango de IPs</h4>
+                <code>10.147.20.0/24</code>
+            </div>
+        </div>
+    </section>
+</article> 

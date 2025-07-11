@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - OzNet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-focus: rgba(37, 99, 235, 0.125);
+        }
+        .service-card {
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            margin-bottom: var(--spacing);
+        }
+        .status-active {
+            color: #059669;
+            font-weight: bold;
+        }
+        .status-coming-soon {
+            color: #d97706;
+            font-weight: bold;
+        }
+        .nav-container {
+            background: var(--card-background-color);
+            border-bottom: 1px solid var(--card-border-color);
+            margin-bottom: var(--spacing);
+        }
+        .footer {
+            text-align: center;
+            padding: var(--spacing);
+            border-top: 1px solid var(--card-border-color);
+            margin-top: var(--spacing);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="container">
+            <ul>
+                <li><strong><a href="/">OzNet</a></strong></li>
+            </ul>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/docs">Documentación</a></li>
+                <li><a href="/setup">Configuración</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 OzNet - Red Privada</p>
+            <p>Network ID: 9bee8941b563441a</p>
+        </div>
+    </footer>
+</body>
+</html> 

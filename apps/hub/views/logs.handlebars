@@ -1,0 +1,105 @@
+<article>
+    <header>
+        <h1>Logs del Sistema</h1>
+        <p>Registros de actividad y errores del servidor OzNet</p>
+    </header>
+
+    <section>
+        <h2>Últimos Logs</h2>
+        <div class="logs-container">
+            {{logs}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Acciones</h2>
+        <div class="grid">
+            <div>
+                <button onclick="location.reload()" class="outline">Actualizar Logs</button>
+            </div>
+            <div>
+                <button onclick="clearLogs()" class="outline">Limpiar Logs</button>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Tipos de Logs</h2>
+        <div class="grid">
+            <div>
+                <h4>Logs de Aplicación</h4>
+                <ul>
+                    <li>Accesos web</li>
+                    <li>Errores de aplicación</li>
+                    <li>Actividad de servicios</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Logs del Sistema</h4>
+                <ul>
+                    <li>Servicios del sistema</li>
+                    <li>Red y conectividad</li>
+                    <li>Recursos del servidor</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Información de Logs</h2>
+        <div class="grid">
+            <div>
+                <h4>Ubicación de Logs</h4>
+                <ul>
+                    <li><code>/var/log/oznet/</code> - Logs de aplicación</li>
+                    <li><code>/var/log/syslog</code> - Logs del sistema</li>
+                    <li><code>/var/log/nginx/</code> - Logs de Nginx</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Rotación de Logs</h4>
+                <ul>
+                    <li>Rotación diaria</li>
+                    <li>Retención de 30 días</li>
+                    <li>Compresión automática</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</article>
+
+<script>
+    // Función para limpiar logs
+    async function clearLogs() {
+        if (confirm('¿Estás seguro de que quieres limpiar los logs?')) {
+            try {
+                const response = await fetch('/api/logs/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Logs limpiados correctamente');
+                    location.reload();
+                } else {
+                    alert('Error al limpiar logs');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+    }
+
+    // Auto-scroll al final de los logs
+    const logsContainer = document.querySelector('.logs-container');
+    if (logsContainer) {
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+    }
+
+    // Actualizar logs automáticamente cada 30 segundos
+    setInterval(() => {
+        location.reload();
+    }, 30000);
+</script> 

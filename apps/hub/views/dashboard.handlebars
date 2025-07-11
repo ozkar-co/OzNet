@@ -1,0 +1,133 @@
+<article>
+    <header>
+        <h1>Dashboard de Servicios</h1>
+        <p>Gestión y monitoreo de todos los servicios de OzNet</p>
+    </header>
+
+    <section>
+        <h2>Servicios Web</h2>
+        <div class="grid">
+            {{#each services}}
+                {{#if (eq type 'web')}}
+                <div class="service-card" data-service="{{id}}">
+                    <h3>{{name}}</h3>
+                    <p>{{description}}</p>
+                    <p><strong>Dominio:</strong> {{domain}}</p>
+                    <p><strong>Puerto:</strong> {{port}}</p>
+                    <p>
+                        <span class="status-{{status}}">
+                            {{#if (eq status 'running')}}
+                                ✅ Activo
+                            {{else if (eq status 'stopped')}}
+                                ❌ Detenido
+                            {{else}}
+                                ⚠️ Error
+                            {{/if}}
+                        </span>
+                    </p>
+                    <div class="service-actions">
+                        <button onclick="updateServiceStatus('{{id}}', 'start')" class="outline">
+                            Iniciar
+                        </button>
+                        <button onclick="updateServiceStatus('{{id}}', 'stop')" class="outline">
+                            Detener
+                        </button>
+                        <button onclick="updateServiceStatus('{{id}}', 'restart')" class="outline">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Servicios del Sistema</h2>
+        <div class="grid">
+            {{#each services}}
+                {{#if (eq type 'system')}}
+                <div class="service-card" data-service="{{id}}">
+                    <h3>{{name}}</h3>
+                    <p>{{description}}</p>
+                    {{#if port}}
+                    <p><strong>Puerto:</strong> {{port}}</p>
+                    {{/if}}
+                    <p>
+                        <span class="status-{{status}}">
+                            {{#if (eq status 'running')}}
+                                ✅ Activo
+                            {{else if (eq status 'stopped')}}
+                                ❌ Detenido
+                            {{else}}
+                                ⚠️ Error
+                            {{/if}}
+                        </span>
+                    </p>
+                    <div class="service-actions">
+                        <button onclick="updateServiceStatus('{{id}}', 'start')" class="outline">
+                            Iniciar
+                        </button>
+                        <button onclick="updateServiceStatus('{{id}}', 'stop')" class="outline">
+                            Detener
+                        </button>
+                        <button onclick="updateServiceStatus('{{id}}', 'restart')" class="outline">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Acciones Rápidas</h2>
+        <div class="grid">
+            <div>
+                <h4>Reiniciar Todos los Servicios</h4>
+                <p>Reinicia todos los servicios web y del sistema</p>
+                <button onclick="restartAllServices()" class="outline">Reiniciar Todo</button>
+            </div>
+            <div>
+                <h4>Verificar Estado</h4>
+                <p>Actualiza el estado de todos los servicios</p>
+                <button onclick="location.reload()" class="outline">Actualizar</button>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Información del Sistema</h2>
+        <div class="grid">
+            <div>
+                <h4>Última Actualización</h4>
+                <p id="lastUpdate">{{formatDate now}}</p>
+            </div>
+            <div>
+                <h4>Servicios Activos</h4>
+                <p id="activeServices">{{countActiveServices services}}</p>
+            </div>
+        </div>
+    </section>
+</article>
+
+<script>
+    // Función para reiniciar todos los servicios
+    async function restartAllServices() {
+        if (confirm('¿Estás seguro de que quieres reiniciar todos los servicios?')) {
+            try {
+                const services = {{json services}};
+                for (const service of services) {
+                    await updateServiceStatus(service.id, 'restart');
+                }
+                location.reload();
+            } catch (error) {
+                alert('Error al reiniciar servicios');
+            }
+        }
+    }
+
+    // Actualizar timestamp de última actualización
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('es-ES');
+</script> 

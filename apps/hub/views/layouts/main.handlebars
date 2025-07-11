@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - OzNet Hub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --primary-focus: rgba(5, 150, 105, 0.125);
+        }
+        .service-card {
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            margin-bottom: var(--spacing);
+        }
+        .status-running {
+            color: #059669;
+            font-weight: bold;
+        }
+        .status-stopped {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #d97706;
+            font-weight: bold;
+        }
+        .nav-container {
+            background: var(--card-background-color);
+            border-bottom: 1px solid var(--card-border-color);
+            margin-bottom: var(--spacing);
+        }
+        .footer {
+            text-align: center;
+            padding: var(--spacing);
+            border-top: 1px solid var(--card-border-color);
+            margin-top: var(--spacing);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing);
+            margin: var(--spacing) 0;
+        }
+        .stat-card {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .service-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .service-actions button {
+            flex: 1;
+        }
+        .logs-container {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="container">
+            <ul>
+                <li><strong><a href="/">OzNet Hub</a></strong></li>
+            </ul>
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/system">Sistema</a></li>
+                <li><a href="/logs">Logs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 OzNet Hub - Gestión de Servicios</p>
+        </div>
+    </footer>
+
+    <script>
+        // Función para actualizar estados de servicios
+        async function updateServiceStatus(serviceId, action) {
+            try {
+                const response = await fetch(`/api/services/${serviceId}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error al ejecutar la acción');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+
+        // Actualizar estados automáticamente cada 30 segundos
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/services');
+                const services = await response.json();
+                
+                services.forEach(service => {
+                    const statusElement = document.querySelector(`[data-service="${service.id}"] .status`);
+                    if (statusElement) {
+                        statusElement.textContent = service.status === 'running' ? '✅ Activo' : '❌ Detenido';
+                        statusElement.className = `status-${service.status}`;
+                    }
+                });
+            } catch (error) {
+                console.log('Error actualizando estados');
+            }
+        }, 30000);
+    </script>
+</body>
+</html> 
