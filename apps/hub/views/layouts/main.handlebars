@@ -34,6 +34,24 @@
             border-bottom: 1px solid var(--card-border-color);
             margin-bottom: var(--spacing);
         }
+        .nav-container nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand {
+            font-weight: bold;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-menu li {
+            margin: 0;
+        }
         .footer {
             text-align: center;
             padding: var(--spacing);
@@ -82,14 +100,15 @@
 <body>
     <nav class="nav-container">
         <div class="container">
-            <ul>
-                <li><strong><a href="/">OzNet Hub</a></strong></li>
-            </ul>
-            <ul>
-                <li><a href="/">Dashboard</a></li>
-                <li><a href="/system">Sistema</a></li>
-                <li><a href="/logs">Logs</a></li>
-            </ul>
+            <nav>
+                <div class="nav-brand">
+                    <a href="/">OzNet Hub</a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/system">Sistema</a></li>
+                </ul>
+            </nav>
         </div>
     </nav>
 

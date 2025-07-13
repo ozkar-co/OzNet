@@ -22,11 +22,6 @@
                 <div class="stat-value">{{stats.disk}}%</div>
                 <p>Uso de almacenamiento</p>
             </div>
-            <div class="stat-card">
-                <h3>Red</h3>
-                <div class="stat-value">{{stats.network}}</div>
-                <p>Dirección IP principal</p>
-            </div>
         </div>
     </section>
 
@@ -76,68 +71,44 @@
     </section>
 
     <section>
-        <h2>Acciones del Sistema</h2>
-        <div class="grid">
-            <div>
-                <h4>Reiniciar Servicios</h4>
-                <button onclick="restartSystemServices()" class="outline">Reiniciar Todo</button>
-            </div>
-            <div>
-                <h4>Actualizar Métricas</h4>
-                <button onclick="location.reload()" class="outline">Actualizar</button>
-            </div>
-        </div>
-    </section>
-
-    <section>
         <h2>Información Técnica</h2>
         <div class="grid">
             <div>
                 <h4>Sistema Operativo</h4>
-                <p>Linux (Ubuntu/Debian)</p>
+                <ul>
+                    <li><strong>Distribución:</strong> {{systemInfo.os}}</li>
+                    <li><strong>Kernel:</strong> {{systemInfo.kernel}}</li>
+                    <li><strong>Arquitectura:</strong> {{systemInfo.arch}}</li>
+                    <li><strong>Uptime:</strong> {{systemInfo.uptime}}</li>
+                </ul>
             </div>
             <div>
-                <h4>Node.js</h4>
-                <p>Runtime para aplicaciones web</p>
+                <h4>Hardware</h4>
+                <ul>
+                    <li><strong>Procesador:</strong> {{systemInfo.cpu}}</li>
+                    <li><strong>RAM Total:</strong> {{systemInfo.ramTotal}}</li>
+                    <li><strong>RAM Libre:</strong> {{systemInfo.ramFree}}</li>
+                    <li><strong>Disco Total:</strong> {{systemInfo.diskTotal}}</li>
+                </ul>
             </div>
             <div>
-                <h4>Express.js</h4>
-                <p>Framework web con virtual hosts</p>
+                <h4>Software</h4>
+                <ul>
+                    <li><strong>Node.js:</strong> {{systemInfo.nodeVersion}}</li>
+                    <li><strong>Express.js:</strong> Framework web con virtual hosts</li>
+                    <li><strong>Handlebars:</strong> Motor de plantillas</li>
+                    <li><strong>PicoCSS:</strong> Framework CSS</li>
+                </ul>
             </div>
             <div>
-                <h4>Handlebars</h4>
-                <p>Motor de plantillas</p>
+                <h4>Red</h4>
+                <ul>
+                    <li><strong>Interfaces:</strong> {{systemInfo.networkInterfaces}}</li>
+                    <li><strong>DNS:</strong> {{systemInfo.dns}}</li>
+                    <li><strong>Gateway:</strong> {{systemInfo.gateway}}</li>
+                    <li><strong>ZeroTier:</strong> {{systemInfo.zerotierStatus}}</li>
+                </ul>
             </div>
         </div>
     </section>
-</article>
-
-<script>
-    // Función para reiniciar servicios del sistema
-    async function restartSystemServices() {
-        if (confirm('¿Estás seguro de que quieres reiniciar todos los servicios del sistema?')) {
-            try {
-                const response = await fetch('/api/services/oznet-home/restart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    alert('Servicios reiniciados correctamente');
-                    location.reload();
-                } else {
-                    alert('Error al reiniciar servicios');
-                }
-            } catch (error) {
-                alert('Error de conexión');
-            }
-        }
-    }
-
-    // Actualizar métricas automáticamente cada 60 segundos
-    setInterval(() => {
-        location.reload();
-    }, 60000);
-</script> 
+</article> 

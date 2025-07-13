@@ -194,28 +194,25 @@ app.post('/api/services/:id/restart', async (req, res) => {
   }
 });
 
-app.get('/logs', async (req, res) => {
-  try {
-    const { stdout } = await execAsync('journalctl -u oznet --no-pager -n 50');
-    res.render('logs', {
-      title: 'Logs del Sistema',
-      logs: stdout
-    });
-  } catch (error) {
-    res.render('logs', {
-      title: 'Logs del Sistema',
-      logs: 'Error al obtener logs: ' + error.message
-    });
-  }
-});
-
 app.get('/system', async (req, res) => {
   try {
-    const [cpu, memory, disk, network] = await Promise.all([
+    const [cpu, memory, disk, os, kernel, arch, uptime, cpuInfo, ramTotal, ramFree, diskTotal, nodeVersion, networkInterfaces, dns, gateway, zerotierStatus] = await Promise.all([
       execAsync("top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1"),
       execAsync("free | grep Mem | awk '{print $3/$2 * 100.0}'"),
       execAsync("df / | tail -1 | awk '{print $5}' | sed 's/%//'"),
-      execAsync("ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | head -1")
+      execAsync("cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"'"),
+      execAsync("uname -r"),
+      execAsync("uname -m"),
+      execAsync("uptime -p"),
+      execAsync("cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d':' -f2 | xargs"),
+      execAsync("free -h | grep Mem | awk '{print $2}'"),
+      execAsync("free -h | grep Mem | awk '{print $7}'"),
+      execAsync("df -h / | tail -1 | awk '{print $2}'"),
+      execAsync("node --version"),
+      execAsync("ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | head -3 | tr '\n' ', '"),
+      execAsync("cat /etc/resolv.conf | grep nameserver | head -1 | awk '{print $2}'"),
+      execAsync("ip route | grep default | awk '{print $3}' | head -1"),
+      execAsync("systemctl is-active zerotier-one")
     ]);
 
     res.render('system', {
@@ -223,8 +220,22 @@ app.get('/system', async (req, res) => {
       stats: {
         cpu: parseFloat(cpu.stdout.trim()),
         memory: parseFloat(memory.stdout.trim()),
-        disk: parseFloat(disk.stdout.trim()),
-        network: network.stdout.trim()
+        disk: parseFloat(disk.stdout.trim())
+      },
+      systemInfo: {
+        os: os.stdout.trim(),
+        kernel: kernel.stdout.trim(),
+        arch: arch.stdout.trim(),
+        uptime: uptime.stdout.trim(),
+        cpu: cpuInfo.stdout.trim(),
+        ramTotal: ramTotal.stdout.trim(),
+        ramFree: ramFree.stdout.trim(),
+        diskTotal: diskTotal.stdout.trim(),
+        nodeVersion: nodeVersion.stdout.trim(),
+        networkInterfaces: networkInterfaces.stdout.trim(),
+        dns: dns.stdout.trim(),
+        gateway: gateway.stdout.trim(),
+        zerotierStatus: zerotierStatus.stdout.trim() === 'active' ? 'Activo' : 'Inactivo'
       }
     });
   } catch (error) {
@@ -233,8 +244,22 @@ app.get('/system', async (req, res) => {
       stats: {
         cpu: 0,
         memory: 0,
-        disk: 0,
-        network: 'Error'
+        disk: 0
+      },
+      systemInfo: {
+        os: 'Error',
+        kernel: 'Error',
+        arch: 'Error',
+        uptime: 'Error',
+        cpu: 'Error',
+        ramTotal: 'Error',
+        ramFree: 'Error',
+        diskTotal: 'Error',
+        nodeVersion: 'Error',
+        networkInterfaces: 'Error',
+        dns: 'Error',
+        gateway: 'Error',
+        zerotierStatus: 'Error'
       }
     });
   }
