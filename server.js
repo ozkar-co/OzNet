@@ -1,5 +1,4 @@
 const express = require('express');
-const vhost = require('express-vhost');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
@@ -26,10 +25,50 @@ app.use(helmet({
 app.use(compression());
 app.use(morgan('combined'));
 
-// Configurar virtual hosts
-app.use(vhost('home.oznet', homeApp));
-app.use(vhost('hub.oznet', hubApp));
-app.use(vhost('files.oznet', filesApp));
+// Middleware para detectar subdominios
+app.use((req, res, next) => {
+  const host = req.get('Host');
+  const subdomain = host ? host.split('.')[0] : '';
+  
+  req.subdomain = subdomain;
+  next();
+});
+
+// Rutas basadas en subdominios
+app.use('/home', (req, res, next) => {
+  if (req.subdomain === 'home' || req.subdomain === 'server') {
+    return homeApp(req, res, next);
+  }
+  next();
+});
+
+app.use('/hub', (req, res, next) => {
+  if (req.subdomain === 'hub') {
+    return hubApp(req, res, next);
+  }
+  next();
+});
+
+app.use('/files', (req, res, next) => {
+  if (req.subdomain === 'files') {
+    return filesApp(req, res, next);
+  }
+  next();
+});
+
+// Rutas principales para cada subdominio
+app.get('/', (req, res, next) => {
+  if (req.subdomain === 'home' || req.subdomain === 'server') {
+    return homeApp(req, res, next);
+  }
+  if (req.subdomain === 'hub') {
+    return hubApp(req, res, next);
+  }
+  if (req.subdomain === 'files') {
+    return filesApp(req, res, next);
+  }
+  next();
+});
 
 // Servidor por defecto para desarrollo
 app.get('/', (req, res) => {
@@ -47,6 +86,13 @@ app.get('/', (req, res) => {
             <li><a href="http://home.oznet">home.oznet</a> - Documentación principal</li>
             <li><a href="http://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
             <li><a href="http://files.oznet">files.oznet</a> - Servidor de archivos</li>
+            <li><a href="http://server.oznet">server.oznet</a> - Servidor principal</li>
+          </ul>
+          <p><strong>Para desarrollo:</strong></p>
+          <ul>
+            <li><a href="/home">/home</a> - Documentación</li>
+            <li><a href="/hub">/hub</a> - Gestión de servicios</li>
+            <li><a href="/files">/files</a> - Servidor de archivos</li>
           </ul>
         </main>
       </body>
@@ -61,7 +107,13 @@ app.listen(PORT, () => {
   console.log('   • home.oznet - Main documentation');
   console.log('   • hub.oznet - Service management');
   console.log('   • files.oznet - File server');
+  console.log('   • server.oznet - Main server');
   console.log('   • mail.oznet - Mail server (coming soon)');
   console.log('   • wiki.oznet - Kiwix server (coming soon)');
   console.log('   • 3dprint.oznet - OctoPrint (coming soon)');
+  console.log('');
+  console.log('🔧 Development routes:');
+  console.log('   • http://localhost:3000/home');
+  console.log('   • http://localhost:3000/hub');
+  console.log('   • http://localhost:3000/files');
 }); 

@@ -46,14 +46,14 @@ if z=$(curl -s 'https://install.zerotier.com/' | gpg); then echo "$z" | sudo bas
         <h4>Linux</h4>
         <p>Edita <code>/etc/resolv.conf</code> o configura NetworkManager:</p>
         <pre><code># Agregar al final de /etc/resolv.conf
-nameserver 10.147.20.1</code></pre>
+nameserver {{serverIp}}</code></pre>
 
         <h4>Windows</h4>
         <ol>
             <li>Abre Configuración de Red</li>
             <li>Selecciona tu adaptador de red</li>
             <li>Propiedades → Protocolo Internet versión 4 (TCP/IPv4)</li>
-            <li>Usar las siguientes direcciones DNS: <code>10.147.20.1</code></li>
+            <li>Usar las siguientes direcciones DNS: <code>{{serverIp}}</code></li>
         </ol>
 
         <h4>macOS</h4>
@@ -61,7 +61,7 @@ nameserver 10.147.20.1</code></pre>
             <li>Preferencias del Sistema → Red</li>
             <li>Selecciona tu conexión de red</li>
             <li>Avanzado → DNS</li>
-            <li>Agrega: <code>10.147.20.1</code></li>
+            <li>Agrega: <code>{{serverIp}}</code></li>
         </ol>
     </section>
 
@@ -72,6 +72,7 @@ nameserver 10.147.20.1</code></pre>
             <li><a href="http://home.oznet">home.oznet</a> - Esta página</li>
             <li><a href="http://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
             <li><a href="http://files.oznet">files.oznet</a> - Servidor de archivos</li>
+            <li><a href="http://server.oznet">server.oznet</a> - Servidor principal</li>
         </ul>
     </section>
 
@@ -82,7 +83,7 @@ nameserver 10.147.20.1</code></pre>
         <ul>
             <li>Verifica que ZeroTier esté conectado</li>
             <li>Confirma que el DNS esté configurado correctamente</li>
-            <li>Prueba hacer ping a <code>10.147.20.1</code></li>
+            <li>Prueba hacer ping a <code>{{serverIp}}</code></li>
         </ul>
 
         <h3>DNS no funciona</h3>
@@ -106,11 +107,11 @@ nameserver 10.147.20.1</code></pre>
             </div>
             <div>
                 <h4>Servidor DNS</h4>
-                <code>10.147.20.1</code>
+                <code>{{serverIp}}</code>
             </div>
             <div>
                 <h4>Rango de IPs</h4>
-                <code>10.147.20.0/24</code>
+                <code>172.26.0.0/24</code>
             </div>
         </div>
     </section>

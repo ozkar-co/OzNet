@@ -20,6 +20,7 @@ OzNet es una red privada basada en ZeroTier que proporciona múltiples servicios
 | home.oznet | Documentación principal | ✅ Activo |
 | hub.oznet | Gestión de servicios | ✅ Activo |
 | files.oznet | Servidor de archivos | ✅ Activo |
+| server.oznet | Servidor principal | ✅ Activo |
 | mail.oznet | Interfaz web de correo | 🚧 Próximamente |
 | wiki.oznet | Servidor Kiwix | 🚧 Próximamente |
 | 3dprint.oznet | OctoPrint | 🚧 Próximamente |
@@ -60,17 +61,25 @@ NODE_ENV=production
 
 1. Instalar ZeroTier One
 2. Unirse a la red: `9bee8941b563441a`
-3. Configurar DNS: `10.147.20.1`
+3. Configurar DNS: `172.26.0.1`
 
 ### 5. Configurar DNS
 
-Editar `/etc/dnsmasq.conf`:
+Editar `/etc/dnsmasq.d/oznet.conf`:
 
 ```
-# Configuración para OzNet
-address=/.oznet/10.147.20.1
-server=8.8.8.8
-server=1.1.1.1
+# Dominio personalizado
+domain=oznet
+
+# Entradas personalizadas
+address=/home.oznet/172.26.0.1
+address=/hub.oznet/172.26.0.1
+address=/files.oznet/172.26.0.1
+address=/server.oznet/172.26.0.1
+
+# Asegura que escuche en la interfaz ZeroTier
+interface=zt+
+listen-address=172.26.0.1
 ```
 
 ### 6. Ejecutar el Servidor
@@ -117,6 +126,11 @@ OzNet/
 - Vista previa de archivos
 - Descarga de archivos
 - Límite: 100MB por archivo
+
+### server.oznet
+- Servidor principal de OzNet
+- Punto de entrada central
+- Redirección a servicios
 
 ## 🔒 Seguridad
 
@@ -196,10 +210,10 @@ module.exports = app;
 ### ZeroTier Network
 - **Network ID**: `9bee8941b563441a`
 - **Nombre**: Oz Network
-- **Rango IP**: `10.147.20.0/24`
+- **Rango IP**: `172.26.0.0/24`
 
 ### DNS Configuration
-- **Servidor**: `10.147.20.1`
+- **Servidor**: `172.26.0.1`
 - **Dominio**: `.oznet`
 - **Servicios**: Todos los subdominios
 
@@ -233,6 +247,7 @@ Para soporte técnico o preguntas:
 - ✅ home.oznet - Documentación
 - ✅ hub.oznet - Gestión de servicios
 - ✅ files.oznet - Servidor de archivos
+- ✅ server.oznet - Servidor principal
 - ✅ Integración con ZeroTier
 - ✅ Configuración DNS automática
 

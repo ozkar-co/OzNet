@@ -40,6 +40,12 @@ app.get('/', (req, res) => {
         url: 'http://files.oznet'
       },
       {
+        name: 'server.oznet',
+        description: 'Servidor principal de OzNet',
+        status: 'active',
+        url: 'http://server.oznet'
+      },
+      {
         name: 'mail.oznet',
         description: 'Interfaz web del servidor de correos',
         status: 'coming-soon',
@@ -65,7 +71,8 @@ app.get('/setup', (req, res) => {
   res.render('setup', {
     title: 'Configuración - OzNet',
     networkId: '9bee8941b563441a',
-    networkName: 'Oz Network'
+    networkName: 'Oz Network',
+    serverIp: '172.26.0.1'
   });
 });
 
