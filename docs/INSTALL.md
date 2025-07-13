@@ -117,7 +117,21 @@ sudo systemctl enable dnsmasq
 
 ### 7. Configurar Nginx
 
-Crear certificado SSL:
+#### Opción A: Certificados Auto-Generados (Recomendado)
+
+Generar CA y certificados SSL:
+
+```bash
+# Generar CA y certificados
+sudo ./scripts/create-ca.sh
+
+# Actualizar configuración
+sudo ./scripts/update-config.sh --ssl --nginx --test
+```
+
+#### Opción B: Certificados Manuales
+
+Crear certificado SSL básico:
 
 ```bash
 sudo mkdir -p /etc/ssl/oznet
@@ -212,25 +226,60 @@ Para que los dispositivos puedan acceder a los servicios `.oznet`, necesitas con
 Editar `/etc/resolv.conf`:
 
 ```
-nameserver 10.147.20.1
+nameserver 172.26.0.1
 ```
 
 #### Windows
 1. Configuración de Red
 2. Propiedades del adaptador
 3. Protocolo Internet versión 4 (TCP/IPv4)
-4. Usar las siguientes direcciones DNS: `10.147.20.1`
+4. Usar las siguientes direcciones DNS: `172.26.0.1`
 
 #### macOS
 1. Preferencias del Sistema → Red
 2. Avanzado → DNS
-3. Agregar: `10.147.20.1`
+3. Agregar: `172.26.0.1`
 
 ### Unirse a la Red ZeroTier
 
 1. Instalar ZeroTier One en tu dispositivo
 2. Unirse a la red: `9bee8941b563441a`
 3. Esperar autorización del administrador
+
+### Instalar Certificado SSL (Opcional pero Recomendado)
+
+Para evitar advertencias de seguridad en el navegador, instala el certificado SSL:
+
+#### Descargar el Certificado
+
+```bash
+# Desde el servidor
+scp usuario@172.26.0.1:/var/oznet/certs/oznet-ca.crt ./
+
+# O desde la web (si ya tienes acceso)
+wget https://172.26.0.1/certs/oznet-ca.crt
+```
+
+#### Instalar en Linux
+
+```bash
+sudo cp oznet-ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
+#### Instalar en macOS
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain oznet-ca.crt
+```
+
+#### Instalar en Windows
+
+1. Doble clic en `oznet-ca.crt`
+2. "Instalar certificado" → "Máquina local"
+3. "Entidades de certificación raíz de confianza"
+
+**Nota**: Reinicia tu navegador después de instalar el certificado.
 
 ## Verificación de la Instalación
 
@@ -316,4 +365,40 @@ Si no puedes conectarte a la red ZeroTier:
 3. **Reiniciar ZeroTier**:
    ```bash
    sudo systemctl restart zerotier-one
-   ``` 
+   ```
+
+### Advertencias de Seguridad SSL
+
+Si ves advertencias de "sitio no seguro" en el navegador:
+
+1. **Verificar instalación del certificado**:
+   ```bash
+   # Linux
+   ls /usr/local/share/ca-certificates/ | grep oznet
+   
+   # macOS
+   security find-certificate -a -c "OzNet"
+   ```
+
+2. **Reiniciar navegador** después de instalar el certificado
+
+3. **Verificar certificado en el servidor**:
+   ```bash
+   sudo ls -la /var/oznet/certs/
+   sudo ls -la /etc/ssl/oznet/
+   ```
+
+4. **Probar conexión HTTPS**:
+   ```bash
+   curl -k https://172.26.0.1
+   ```
+
+### Verificar SSL
+
+```bash
+# Probar conexión HTTPS
+curl -k https://172.26.0.1
+
+# Verificar certificado (si está instalado)
+openssl s_client -connect 172.26.0.1:443 -servername home.oznet
+``` 

@@ -64,6 +64,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Servir certificados SSL
+app.get('/certs/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const certPath = path.join('/var/oznet/certs', filename);
+  
+  // Solo permitir descargar archivos .crt y .pem
+  if (!filename.match(/\.(crt|pem)$/)) {
+    return res.status(403).send('Acceso denegado');
+  }
+  
+  res.download(certPath, filename, (err) => {
+    if (err) {
+      res.status(404).send('Certificado no encontrado');
+    }
+  });
+});
+
 // Servidor por defecto para desarrollo
 app.get('/', (req, res) => {
   res.send(`
@@ -77,16 +94,20 @@ app.get('/', (req, res) => {
           <h1>OzNet - Red Privada</h1>
           <p>Bienvenido a la red privada OzNet. Los servicios disponibles son:</p>
           <ul>
-            <li><a href="http://home.oznet">home.oznet</a> - Documentación principal</li>
-            <li><a href="http://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
-            <li><a href="http://files.oznet">files.oznet</a> - Servidor de archivos</li>
-            <li><a href="http://server.oznet">server.oznet</a> - Servidor principal</li>
+            <li><a href="https://home.oznet">home.oznet</a> - Documentación principal</li>
+            <li><a href="https://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
+            <li><a href="https://files.oznet">files.oznet</a> - Servidor de archivos</li>
+            <li><a href="https://server.oznet">server.oznet</a> - Servidor principal</li>
           </ul>
           <p><strong>Para desarrollo:</strong></p>
           <ul>
             <li><a href="/home">/home</a> - Documentación</li>
             <li><a href="/hub">/hub</a> - Gestión de servicios</li>
             <li><a href="/files">/files</a> - Servidor de archivos</li>
+          </ul>
+          <p><strong>Certificados SSL:</strong></p>
+          <ul>
+            <li><a href="/certs/oznet-ca.crt">Descargar Certificado CA</a></li>
           </ul>
         </main>
       </body>

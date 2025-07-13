@@ -66,14 +66,68 @@ nameserver {{serverIp}}</code></pre>
     </section>
 
     <section>
-        <h2>Paso 4: Verificar Conexión</h2>
+        <h2>Paso 4: Instalar Certificado SSL (Opcional pero Recomendado)</h2>
+        
+        <div class="alert alert-warning">
+            <strong>⚠️ Importante:</strong> Sin el certificado SSL, verás advertencias de seguridad en el navegador.
+        </div>
+
+        <h3>Descargar el Certificado</h3>
+        <p>El certificado CA de OzNet está disponible en el servidor. Puedes descargarlo de una de estas formas:</p>
+        
+        <h4>Opción A: Descarga Directa</h4>
+        <p>Si ya tienes acceso a la red, descarga desde:</p>
+        <pre><code># Linux/macOS
+wget https://{{serverIp}}/certs/oznet-ca.crt
+
+# O usando curl
+curl -k -o oznet-ca.crt https://{{serverIp}}/certs/oznet-ca.crt</code></pre>
+
+        <h4>Opción B: Copia desde el Servidor</h4>
+        <pre><code># Si tienes acceso SSH al servidor
+scp usuario@{{serverIp}}:/var/oznet/certs/oznet-ca.crt ./</code></pre>
+
+        <h3>Instalar el Certificado</h3>
+        
+        <h4>Linux (Ubuntu/Debian)</h4>
+        <pre><code>sudo cp oznet-ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates</code></pre>
+
+        <h4>Linux (RHEL/CentOS/Fedora)</h4>
+        <pre><code>sudo cp oznet-ca.crt /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust</code></pre>
+
+        <h4>macOS</h4>
+        <pre><code>sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain oznet-ca.crt</code></pre>
+
+        <h4>Windows</h4>
+        <ol>
+            <li>Haz doble clic en el archivo <code>oznet-ca.crt</code></li>
+            <li>Haz clic en "Instalar certificado"</li>
+            <li>Selecciona "Máquina local"</li>
+            <li>Selecciona "Colocar todos los certificados en el siguiente almacén"</li>
+            <li>Haz clic en "Examinar" y selecciona "Entidades de certificación raíz de confianza"</li>
+            <li>Haz clic en "Aceptar" y "Siguiente"</li>
+        </ol>
+
+        <div class="alert alert-info">
+            <strong>💡 Nota:</strong> Después de instalar el certificado, reinicia tu navegador para que los cambios surtan efecto.
+        </div>
+    </section>
+
+    <section>
+        <h2>Paso 5: Verificar Conexión</h2>
         <p>Una vez configurado, deberías poder acceder a:</p>
         <ul>
-            <li><a href="http://home.oznet">home.oznet</a> - Esta página</li>
-            <li><a href="http://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
-            <li><a href="http://files.oznet">files.oznet</a> - Servidor de archivos</li>
-            <li><a href="http://server.oznet">server.oznet</a> - Servidor principal</li>
+            <li><a href="https://home.oznet">https://home.oznet</a> - Esta página (con SSL)</li>
+            <li><a href="https://hub.oznet">https://hub.oznet</a> - Gestión de servicios</li>
+            <li><a href="https://files.oznet">https://files.oznet</a> - Servidor de archivos</li>
+            <li><a href="https://server.oznet">https://server.oznet</a> - Servidor principal</li>
         </ul>
+        
+        <div class="alert alert-success">
+            <strong>✅ Verificación:</strong> Si ves un candado verde en la barra de direcciones, el certificado SSL está funcionando correctamente.
+        </div>
     </section>
 
     <section>
@@ -91,6 +145,21 @@ nameserver {{serverIp}}</code></pre>
             <li>Reinicia el servicio de red</li>
             <li>Limpia la caché DNS: <code>sudo systemctl restart systemd-resolved</code></li>
             <li>En Windows: <code>ipconfig /flushdns</code></li>
+        </ul>
+
+        <h3>Advertencias de seguridad en el navegador</h3>
+        <ul>
+            <li>Asegúrate de haber instalado el certificado SSL correctamente</li>
+            <li>Reinicia el navegador después de instalar el certificado</li>
+            <li>Verifica que el certificado esté en el almacén correcto</li>
+            <li>Como alternativa temporal, puedes hacer clic en "Avanzado" y "Continuar"</li>
+        </ul>
+
+        <h3>El certificado no se instala</h3>
+        <ul>
+            <li>Verifica que tengas permisos de administrador</li>
+            <li>En Windows, ejecuta el instalador como administrador</li>
+            <li>En Linux, usa <code>sudo</code> para los comandos</li>
         </ul>
     </section>
 
@@ -112,6 +181,40 @@ nameserver {{serverIp}}</code></pre>
             <div>
                 <h4>Rango de IPs</h4>
                 <code>172.26.0.0/24</code>
+            </div>
+            <div>
+                <h4>Certificado SSL</h4>
+                <p>CA: OzNet Root CA</p>
+            </div>
+            <div>
+                <h4>Puertos</h4>
+                <p>HTTP: 80, HTTPS: 443, DNS: 53</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Comandos Útiles</h2>
+        <div class="grid">
+            <div>
+                <h4>Verificar conexión ZeroTier</h4>
+                <pre><code>zerotier-cli status</code></pre>
+            </div>
+            <div>
+                <h4>Probar DNS</h4>
+                <pre><code>nslookup home.oznet {{serverIp}}</code></pre>
+            </div>
+            <div>
+                <h4>Probar conectividad</h4>
+                <pre><code>ping {{serverIp}}</code></pre>
+            </div>
+            <div>
+                <h4>Ver certificados instalados</h4>
+                <pre><code># Linux
+ls /usr/local/share/ca-certificates/
+
+# macOS
+security find-certificate -a -c "OzNet"</code></pre>
             </div>
         </div>
     </section>
