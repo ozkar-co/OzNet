@@ -101,6 +101,13 @@ update_ssl() {
         -out /etc/ssl/oznet/cert.pem \
         -subj "/C=ES/ST=State/L=City/O=OzNet/CN=*.oznet"
     
+    # Fix certificate permissions for web access
+    if [[ -f /var/oznet/certs/oznet-ca.crt ]]; then
+        chown www-data:www-data /var/oznet/certs/oznet-ca.crt
+        chmod 644 /var/oznet/certs/oznet-ca.crt
+        log "✓ Fixed certificate permissions"
+    fi
+    
     log "✓ SSL certificates updated"
 }
 

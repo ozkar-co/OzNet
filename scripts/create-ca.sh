@@ -252,6 +252,10 @@ create_client_cert() {
     # Copy CA certificate for clients
     cp /etc/ssl/oznet-ca/certs/ca.crt /var/oznet/certs/oznet-ca.crt
     
+    # Set correct ownership for web access
+    chown www-data:www-data /var/oznet/certs/oznet-ca.crt
+    chmod 644 /var/oznet/certs/oznet-ca.crt
+    
     # Create installation script for clients
     cat > /var/oznet/certs/install-ca.sh << 'EOF'
 #!/bin/bash

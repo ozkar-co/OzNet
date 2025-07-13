@@ -69,14 +69,28 @@ app.get('/certs/:filename', (req, res) => {
   const filename = req.params.filename;
   const certPath = path.join('/var/oznet/certs', filename);
   
+  console.log('Certificate request:', filename);
+  console.log('Certificate path:', certPath);
+  
   // Solo permitir descargar archivos .crt y .pem
   if (!filename.match(/\.(crt|pem)$/)) {
     return res.status(403).send('Acceso denegado');
   }
   
+  // Verificar que el archivo existe
+  const fs = require('fs');
+  if (!fs.existsSync(certPath)) {
+    console.log('Certificate file not found:', certPath);
+    return res.status(404).send(`Certificado no encontrado: ${filename}`);
+  }
+  
+  console.log('Certificate file found, downloading...');
   res.download(certPath, filename, (err) => {
     if (err) {
-      res.status(404).send('Certificado no encontrado');
+      console.error('Error downloading certificate:', err);
+      res.status(500).send('Error al descargar certificado');
+    } else {
+      console.log('Certificate downloaded successfully');
     }
   });
 });
