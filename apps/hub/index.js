@@ -7,12 +7,28 @@ const execAsync = util.promisify(exec);
 
 const app = express();
 
-// Configurar Handlebars
-app.engine('handlebars', exphbs.engine({
+// Registrar helper 'eq'
+const hbs = exphbs.create({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
-  partialsDir: path.join(__dirname, 'views/partials')
-}));
+  partialsDir: path.join(__dirname, 'views/partials'),
+  helpers: {
+    eq: (a, b) => a === b,
+    formatDate: function(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+    },
+    countActiveServices: function(services) {
+      if (!Array.isArray(services)) return 0;
+      return services.filter(s => s.status === 'running').length;
+    },
+    json: function(context) {
+      return JSON.stringify(context);
+    }
+  }
+});
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 

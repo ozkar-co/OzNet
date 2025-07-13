@@ -4,12 +4,16 @@ const path = require('path');
 
 const app = express();
 
-// Configurar Handlebars
-app.engine('handlebars', exphbs.engine({
+// Registrar helper 'eq'
+const hbs = exphbs.create({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
-  partialsDir: path.join(__dirname, 'views/partials')
-}));
+  partialsDir: path.join(__dirname, 'views/partials'),
+  helpers: {
+    eq: (a, b) => a === b
+  }
+});
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 

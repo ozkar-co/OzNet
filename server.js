@@ -34,27 +34,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rutas basadas en subdominios
-app.use('/home', (req, res, next) => {
-  if (req.subdomain === 'home' || req.subdomain === 'server') {
-    return homeApp(req, res, next);
-  }
-  next();
-});
-
-app.use('/hub', (req, res, next) => {
-  if (req.subdomain === 'hub') {
-    return hubApp(req, res, next);
-  }
-  next();
-});
-
-app.use('/files', (req, res, next) => {
-  if (req.subdomain === 'files') {
-    return filesApp(req, res, next);
-  }
-  next();
-});
+// Rutas de desarrollo (funcionan sin subdominios)
+app.use('/home', homeApp);
+app.use('/hub', hubApp);
+app.use('/files', filesApp);
 
 // Rutas principales para cada subdominio
 app.get('/', (req, res, next) => {
