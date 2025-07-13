@@ -1,0 +1,161 @@
+<article>
+    <header>
+        <h1>Explorador de Archivos</h1>
+        <p>Navega por los archivos y directorios de OzNet</p>
+    </header>
+
+    <section>
+        <div class="breadcrumb">
+            {{#each breadcrumbs}}
+                <a href="/?path={{encodeURIComponent path}}">{{name}}</a>
+                {{#unless @last}}
+                    <span class="breadcrumb-separator">/</span>
+                {{/unless}}
+            {{/each}}
+        </div>
+    </section>
+
+    <section>
+        <div class="file-list">
+            {{#if files.length}}
+                {{#each files}}
+                <div class="file-item">
+                    <div class="file-icon">
+                        {{#if isDirectory}}
+                            <span class="directory-icon">📁</span>
+                        {{else}}
+                            {{#if (eq (getFileIcon name false) '🖼️')}}
+                                <span class="image-icon">🖼️</span>
+                            {{else if (eq (getFileIcon name false) '📦')}}
+                                <span class="archive-icon">📦</span>
+                            {{else}}
+                                <span class="document-icon">📄</span>
+                            {{/if}}
+                        {{/if}}
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">
+                            {{#if isDirectory}}
+                                <a href="/?path={{encodeURIComponent path}}">{{name}}</a>
+                            {{else}}
+                                {{name}}
+                            {{/if}}
+                        </div>
+                        <div class="file-details">
+                            {{#if isDirectory}}
+                                Directorio
+                            {{else}}
+                                {{size}} • Modificado: {{formatDate modified}}
+                            {{/if}}
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        {{#if isDirectory}}
+                            <button onclick="window.location.href='/?path={{encodeURIComponent path}}'" class="outline">
+                                Abrir
+                            </button>
+                        {{else}}
+                            <button onclick="downloadFile('{{path}}')" class="outline">
+                                Descargar
+                            </button>
+                        {{/if}}
+                        <button onclick="getFileInfo('{{path}}')" class="outline">
+                            Info
+                        </button>
+                    </div>
+                </div>
+                {{/each}}
+            {{else}}
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-name">Directorio vacío</div>
+                        <div class="file-details">No hay archivos en este directorio</div>
+                    </div>
+                </div>
+            {{/if}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Información del Directorio</h2>
+        <div class="grid">
+            <div>
+                <h4>Ruta Actual</h4>
+                <p><code>{{currentPath}}</code></p>
+            </div>
+            <div>
+                <h4>Ruta Relativa</h4>
+                <p><code>{{relativePath}}</code></p>
+            </div>
+            <div>
+                <h4>Elementos</h4>
+                <p>{{files.length}} elementos</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Acciones</h2>
+        <div class="grid">
+            <div>
+                <button onclick="location.reload()" class="outline">Actualizar</button>
+            </div>
+            <div>
+                <a href="/stats" role="button" class="outline">Ver Estadísticas</a>
+            </div>
+        </div>
+    </section>
+</article>
+
+<script>
+    // Función para obtener icono según tipo de archivo
+    function getFileIcon(filename, isDirectory) {
+        if (isDirectory) return '📁';
+        
+        const ext = filename.split('.').pop().toLowerCase();
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+        const documentExts = ['txt', 'md', 'pdf', 'doc', 'docx'];
+        const archiveExts = ['zip', 'tar', 'gz', 'rar', '7z'];
+        
+        if (imageExts.includes(ext)) return '🖼️';
+        if (documentExts.includes(ext)) return '📄';
+        if (archiveExts.includes(ext)) return '📦';
+        
+        return '📄';
+    }
+
+    // Función para descargar archivo
+    function downloadFile(filePath) {
+        window.open(`/download?path=${encodeURIComponent(filePath)}`, '_blank');
+    }
+
+    // Función para obtener información del archivo
+    async function getFileInfo(filePath) {
+        try {
+            const response = await fetch(`/api/info?path=${encodeURIComponent(filePath)}`);
+            const fileInfo = await response.json();
+            
+            if (fileInfo.error) {
+                alert('Error: ' + fileInfo.error);
+                return;
+            }
+            
+            const info = `Nombre: ${fileInfo.name}\n` +
+                       `Tamaño: ${fileInfo.size || 'N/A'}\n` +
+                       `Modificado: ${new Date(fileInfo.modified).toLocaleString()}\n` +
+                       `Permisos: ${fileInfo.permissions}`;
+            
+            alert(info);
+        } catch (error) {
+            alert('Error al obtener información del archivo');
+        }
+    }
+
+    // Atajo de teclado para actualizar (F5)
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'F5') {
+            event.preventDefault();
+            location.reload();
+        }
+    });
+</script> 

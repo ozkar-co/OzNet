@@ -1,0 +1,188 @@
+<article>
+    <header>
+        <h1>Estadísticas del Servidor de Archivos</h1>
+        <p>Información detallada sobre el uso y rendimiento</p>
+    </header>
+
+    <section>
+        <h2>Métricas del Sistema</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Uso de Disco</h3>
+                <div class="stat-value">{{stats.diskUsage}}</div>
+                <p>Espacio utilizado</p>
+            </div>
+            <div class="stat-card">
+                <h3>Archivos</h3>
+                <div class="stat-value">{{stats.fileCount}}</div>
+                <p>Total de archivos</p>
+            </div>
+            <div class="stat-card">
+                <h3>Directorios</h3>
+                <div class="stat-value">{{stats.dirCount}}</div>
+                <p>Total de carpetas</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Información del Servidor</h2>
+        <div class="grid">
+            <div>
+                <h4>Configuración</h4>
+                <ul>
+                    <li><strong>Tamaño máximo:</strong> 1GB por archivo</li>
+                    <li><strong>Tipos soportados:</strong> Todos los tipos MIME</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Características</h4>
+                <ul>
+                    <li>Navegación por directorios</li>
+                    <li>Descarga de archivos</li>
+                    <li>Información detallada</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Tipos de Archivo Soportados</h2>
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Extensión</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4"><strong>Texto y Documentos</strong></td>
+                    <td><code>.txt</code></td>
+                    <td>Archivos de texto</td>
+                </tr>
+                <tr>
+                    <td><code>.md</code></td>
+                    <td>Markdown</td>
+                </tr>
+                <tr>
+                    <td><code>.pdf</code></td>
+                    <td>Documentos PDF</td>
+                </tr>
+                <tr>
+                    <td><code>.epub</code></td>
+                    <td>Libros electrónicos</td>
+                </tr>
+                <tr>
+                    <td rowspan="5"><strong>Imágenes</strong></td>
+                    <td><code>.png</code></td>
+                    <td>Imágenes PNG</td>
+                </tr>
+                <tr>
+                    <td><code>.jpg/.jpeg</code></td>
+                    <td>Imágenes JPEG</td>
+                </tr>
+                <tr>
+                    <td><code>.gif</code></td>
+                    <td>Imágenes GIF</td>
+                </tr>
+                <tr>
+                    <td><code>.svg</code></td>
+                    <td>Gráficos vectoriales</td>
+                </tr>
+                <tr>
+                    <td><code>.webp</code></td>
+                    <td>Imágenes WebP</td>
+                </tr>
+                <tr>
+                    <td rowspan="5"><strong>Archivos Comprimidos</strong></td>
+                    <td><code>.zip</code></td>
+                    <td>Archivos ZIP</td>
+                </tr>
+                <tr>
+                    <td><code>.tar</code></td>
+                    <td>Archivos TAR</td>
+                </tr>
+                <tr>
+                    <td><code>.gz</code></td>
+                    <td>Archivos GZIP</td>
+                </tr>
+                <tr>
+                    <td><code>.rar</code></td>
+                    <td>Archivos RAR</td>
+                </tr>
+                <tr>
+                    <td><code>.7z</code></td>
+                    <td>Archivos 7-Zip</td>
+                </tr>
+                <tr>
+                    <td rowspan="5"><strong>Ejecutables e Instaladores</strong></td>
+                    <td><code>.exe</code></td>
+                    <td>Ejecutables Windows</td>
+                </tr>
+                <tr>
+                    <td><code>.msi</code></td>
+                    <td>Instaladores Windows</td>
+                </tr>
+                <tr>
+                    <td><code>.deb</code></td>
+                    <td>Paquetes Debian/Ubuntu</td>
+                </tr>
+                <tr>
+                    <td><code>.sh</code></td>
+                    <td>Scripts de shell</td>
+                </tr>
+                <tr>
+                    <td><code>.iso</code></td>
+                    <td>Imágenes de disco</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Seguridad y Límites</h2>
+        <div class="grid">
+            <div>
+                <h4>Restricciones de Seguridad</h4>
+                <ul>
+                    <li>Acceso solo dentro del directorio raíz</li>
+                    <li>Validación de rutas</li>
+                    <li>Límites de tamaño de archivo</li>
+                    <li>Tipos MIME verificados</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Límites de Rendimiento</h4>
+                <ul>
+                    <li>Máximo 1GB por descarga</li>
+                    <li>Máximo 1000 archivos por directorio</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Acciones</h2>
+        <div class="grid">
+            <div>
+                <a href="/" role="button" class="outline">Explorar Archivos</a>
+            </div>
+            <div>
+                <button onclick="location.reload()" class="outline">Actualizar Estadísticas</button>
+            </div>
+        </div>
+    </section>
+</article>
+
+<script>
+    // Función para formatear bytes
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+</script> 

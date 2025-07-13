@@ -159,7 +159,7 @@ dist/
 *.backup
 
 # OzNet specific
-files/
-uploads/
-logs/
+/files/
+/uploads/
+/logs/
 config/local.js 

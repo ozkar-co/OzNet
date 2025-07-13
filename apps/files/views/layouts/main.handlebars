@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - OzNet Files</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-focus: rgba(124, 58, 237, 0.125);
+        }
+        .file-list {
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--card-border-color);
+            transition: background-color 0.2s;
+        }
+        .file-item:hover {
+            background-color: var(--card-background-color);
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-icon {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .file-details {
+            font-size: 0.875rem;
+            color: var(--muted-color);
+        }
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--card-background-color);
+            border-radius: var(--border-radius);
+        }
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .breadcrumb-separator {
+            color: var(--muted-color);
+        }
+        .nav-container {
+            background: var(--card-background-color);
+            border-bottom: 1px solid var(--card-border-color);
+            margin-bottom: var(--spacing);
+        }
+        .nav-container nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand {
+            font-weight: bold;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-menu li {
+            margin: 0;
+        }
+        .footer {
+            text-align: center;
+            padding: var(--spacing);
+            border-top: 1px solid var(--card-border-color);
+            margin-top: var(--spacing);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing);
+            margin: var(--spacing) 0;
+        }
+        .stat-card {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .preview-container {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+        .directory-icon {
+            color: #f59e0b;
+        }
+        .file-icon {
+            color: #3b82f6;
+        }
+        .image-icon {
+            color: #10b981;
+        }
+        .document-icon {
+            color: #8b5cf6;
+        }
+        .archive-icon {
+            color: #f97316;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="container">
+            <nav>
+                <div class="nav-brand">
+                    <a href="/">OzNet Files</a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/">Explorar</a></li>
+                    <li><a href="/stats">Estadísticas</a></li>
+                </ul>
+            </nav>
+        </div>
+    </nav>
+
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 OzNet Files - Servidor de Archivos</p>
+        </div>
+    </footer>
+
+    <script>
+        // Función para obtener icono según tipo de archivo
+        function getFileIcon(filename, isDirectory) {
+            if (isDirectory) return '📁';
+            
+            const ext = filename.split('.').pop().toLowerCase();
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+            const documentExts = ['txt', 'md', 'pdf', 'doc', 'docx'];
+            const archiveExts = ['zip', 'tar', 'gz', 'rar', '7z'];
+            
+            if (imageExts.includes(ext)) return '🖼️';
+            if (documentExts.includes(ext)) return '📄';
+            if (archiveExts.includes(ext)) return '📦';
+            
+            return '📄';
+        }
+
+        // Función para descargar archivo
+        function downloadFile(filePath) {
+            window.open(`/download?path=${encodeURIComponent(filePath)}`, '_blank');
+        }
+
+        // Función para vista previa
+        function previewFile(filePath) {
+            window.open(`/preview?path=${encodeURIComponent(filePath)}`, '_blank');
+        }
+
+        // Función para obtener información del archivo
+        async function getFileInfo(filePath) {
+            try {
+                const response = await fetch(`/api/info?path=${encodeURIComponent(filePath)}`);
+                const fileInfo = await response.json();
+                
+                if (fileInfo.error) {
+                    alert('Error: ' + fileInfo.error);
+                    return;
+                }
+                
+                const info = `Nombre: ${fileInfo.name}\n` +
+                           `Tamaño: ${fileInfo.size || 'N/A'}\n` +
+                           `Modificado: ${new Date(fileInfo.modified).toLocaleString()}\n` +
+                           `Permisos: ${fileInfo.permissions}`;
+                
+                alert(info);
+            } catch (error) {
+                alert('Error al obtener información del archivo');
+            }
+        }
+    </script>
+</body>
+</html> 
