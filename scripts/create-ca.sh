@@ -41,6 +41,10 @@ create_ca_structure() {
     mkdir -p /etc/ssl/oznet-ca/private
     chmod 700 /etc/ssl/oznet-ca/private
     
+    # Create server SSL directory structure
+    mkdir -p /etc/ssl/oznet/{private,certs}
+    chmod 700 /etc/ssl/oznet/private
+    
     # Create CA database
     touch /etc/ssl/oznet-ca/index.txt
     echo "01" > /etc/ssl/oznet-ca/serial
@@ -67,6 +71,10 @@ generate_root_ca() {
 # Generate server certificate
 generate_server_cert() {
     log "Generating server certificate..."
+    
+    # Create server directory structure
+    mkdir -p /etc/ssl/oznet/private
+    chmod 700 /etc/ssl/oznet/private
     
     # Create server private key
     openssl genrsa -out /etc/ssl/oznet/private/server.key 2048
