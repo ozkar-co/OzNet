@@ -20,7 +20,7 @@ Esta guía te ayudará a instalar y configurar OzNet en tu servidor.
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:ozkar-co/OzNet.git
 cd OzNet
 ```
 
@@ -164,6 +164,8 @@ EOF
 
 ### 10. Crear Servicio del Sistema
 
+**Importante**: El servicio debe ejecutarse como el usuario propietario del directorio del proyecto para evitar errores de permisos.
+
 ```bash
 sudo tee /etc/systemd/system/oznet.service > /dev/null << EOF
 [Unit]
@@ -172,7 +174,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
+User=oz
 WorkingDirectory=$(pwd)
 Environment=NODE_ENV=production
 Environment=FILES_ROOT=/var/oznet/files
@@ -249,90 +251,69 @@ nslookup hub.oznet 127.0.0.1
 nslookup files.oznet 127.0.0.1
 ```
 
-### Verificar Web Server
-
-```bash
-curl -I http://localhost:3000
-```
-
-### Verificar ZeroTier
-
-```bash
-sudo zerotier-cli status
-sudo zerotier-cli listnetworks
-```
-
-## Acceso a los Servicios
-
-Una vez configurado, puedes acceder a:
-
-- **Documentación**: http://home.oznet
-- **Gestión de Servicios**: http://hub.oznet
-- **Servidor de Archivos**: http://files.oznet
-
 ## Solución de Problemas
 
-### DNS no funciona
-```bash
-sudo systemctl restart dnsmasq
-sudo systemctl restart systemd-resolved
-```
+### Error de Servicio Systemd
 
-### Web server no responde
-```bash
-sudo systemctl restart oznet
-sudo journalctl -u oznet -f
-```
+Si el servicio `oznet` falla con error `status=200/CHDIR`:
 
-### ZeroTier no conecta
-```bash
-sudo systemctl restart zerotier-one
-sudo zerotier-cli status
-```
+1. **Verificar permisos del directorio**:
+   ```bash
+   ls -la /home/oz/OzNet
+   ```
 
-### Nginx no funciona
-```bash
-sudo nginx -t
-sudo systemctl restart nginx
-sudo journalctl -u nginx -f
-```
+2. **Verificar que el usuario del servicio tenga acceso**:
+   ```bash
+   sudo -u oz ls /home/oz/OzNet
+   ```
 
-## Logs del Sistema
+3. **Corregir el archivo de servicio**:
+   ```bash
+   sudo nano /etc/systemd/system/oznet.service
+   ```
+   
+   Asegúrate de que `User=` coincida con el propietario del directorio del proyecto.
 
-- **Aplicación**: `/var/log/oznet/`
-- **Sistema**: `/var/log/syslog`
-- **Nginx**: `/var/log/nginx/`
-- **ZeroTier**: `/var/log/zerotier-one.log`
+4. **Reiniciar el servicio**:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl restart oznet
+   ```
 
-## Actualizaciones
+### Error de DNS
 
-Para actualizar OzNet:
+Si los dominios `.oznet` no se resuelven:
 
-```bash
-git pull
-npm install
-sudo systemctl restart oznet
-```
+1. **Verificar que dnsmasq esté ejecutándose**:
+   ```bash
+   sudo systemctl status dnsmasq
+   ```
 
-## Desinstalación
+2. **Verificar la configuración de DNS**:
+   ```bash
+   nslookup home.oznet 127.0.0.1
+   ```
 
-Para desinstalar completamente:
+3. **Reiniciar dnsmasq**:
+   ```bash
+   sudo systemctl restart dnsmasq
+   ```
 
-```bash
-sudo systemctl stop oznet
-sudo systemctl disable oznet
-sudo rm /etc/systemd/system/oznet.service
-sudo rm -rf /var/oznet
-sudo systemctl daemon-reload
-```
+### Error de ZeroTier
 
-## Soporte
+Si no puedes conectarte a la red ZeroTier:
 
-Si tienes problemas con la instalación:
+1. **Verificar el estado del servicio**:
+   ```bash
+   sudo systemctl status zerotier-one
+   ```
 
-1. Revisa los logs del sistema
-2. Verifica la conectividad de red
-3. Confirma que ZeroTier esté funcionando
-4. Contacta al administrador de la red
+2. **Verificar la membresía**:
+   ```bash
+   sudo zerotier-cli listnetworks
+   ```
 
-Para más información, consulta la documentación en: http://home.oznet/docs 
+3. **Reiniciar ZeroTier**:
+   ```bash
+   sudo systemctl restart zerotier-one
+   ``` 
