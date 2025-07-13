@@ -29,25 +29,25 @@ app.get('/', (req, res) => {
         name: 'home.oznet',
         description: 'Documentación principal del proyecto',
         status: 'active',
-        url: 'http://home.oznet'
+        url: 'https://home.oznet'
       },
       {
         name: 'hub.oznet',
         description: 'Gestión y administración de servicios',
         status: 'active',
-        url: 'http://hub.oznet'
+        url: 'https://hub.oznet'
       },
       {
         name: 'files.oznet',
         description: 'Servidor público de archivos',
         status: 'active',
-        url: 'http://files.oznet'
+        url: 'https://files.oznet'
       },
       {
         name: 'server.oznet',
         description: 'Servidor principal de OzNet',
         status: 'active',
-        url: 'http://server.oznet'
+        url: 'https://server.oznet'
       },
       {
         name: 'mail.oznet',

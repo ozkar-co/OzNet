@@ -8,13 +8,27 @@ const execAsync = util.promisify(exec);
 
 const app = express();
 
-// Registrar helper 'eq'
+// Registrar helpers
 const hbs = exphbs.create({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
   partialsDir: path.join(__dirname, 'views/partials'),
   helpers: {
-    eq: (a, b) => a === b
+    eq: (a, b) => a === b,
+    encodeURIComponent: (str) => encodeURIComponent(str),
+    getFileIcon: (filename, isDirectory) => {
+      if (isDirectory) return '📁';
+      const ext = path.extname(filename).toLowerCase();
+      const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'];
+      const archiveExts = ['.zip', '.tar', '.gz', '.rar', '.7z'];
+      if (imageExts.includes(ext)) return '🖼️';
+      if (archiveExts.includes(ext)) return '📦';
+      return '📄';
+    },
+    formatDate: (date) => {
+      if (!date) return '';
+      return new Date(date).toLocaleString('es-ES');
+    }
   }
 });
 app.engine('handlebars', hbs.engine);
