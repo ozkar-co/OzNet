@@ -15,26 +15,40 @@
 
     <section>
         <h2>Servicios Disponibles</h2>
-        <div class="grid">
-            {{#each services}}
-            <div class="service-card">
-                <h3>{{name}}</h3>
-                <p>{{description}}</p>
-                <p>
-                    <span class="status-{{status}}">
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each services}}
+                <tr>
+                    <td><strong>{{name}}</strong></td>
+                    <td>{{description}}</td>
+                    <td>
+                        <span class="status-{{status}}">
+                            {{#if (eq status 'active')}}
+                                ✅ Activo
+                            {{else}}
+                                🚧 Próximamente
+                            {{/if}}
+                        </span>
+                    </td>
+                    <td>
                         {{#if (eq status 'active')}}
-                            ✅ Activo
+                            <a href="{{url}}" role="button" class="outline">Acceder</a>
                         {{else}}
-                            🚧 Próximamente
+                            <span class="muted">No disponible</span>
                         {{/if}}
-                    </span>
-                </p>
-                {{#if (eq status 'active')}}
-                    <a href="{{url}}" role="button" class="outline">Acceder</a>
-                {{/if}}
-            </div>
-            {{/each}}
-        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
     </section>
 
     <section>
