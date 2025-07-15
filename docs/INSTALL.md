@@ -401,4 +401,4 @@ curl -k https://172.26.0.1
 
 # Verificar certificado (si está instalado)
 openssl s_client -connect 172.26.0.1:443 -servername home.oznet
-``` 
+   ``` 

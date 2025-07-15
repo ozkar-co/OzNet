@@ -23,23 +23,33 @@ app.set('views', path.join(__dirname, 'views'));
 // Servir archivos estáticos
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Función para obtener IP de ZeroTier
-async function getZeroTierIP() {
-  try {
-    const { stdout } = await execAsync('zerotier-cli listnetworks | grep 9bee8941b563441a | awk \'{print $3}\'');
-    return stdout.trim();
-  } catch (error) {
-    return 'No conectado';
+// Función para obtener IP del cliente
+function getClientIP(req) {
+  // Obtener IP desde diferentes headers
+  const ip = req.headers['x-forwarded-for'] || 
+             req.headers['x-real-ip'] || 
+             req.connection.remoteAddress || 
+             req.socket.remoteAddress || 
+             req.ip;
+  
+  // Limpiar la IP (remover prefijos como ::ffff:)
+  const cleanIP = ip ? ip.replace(/^::ffff:/, '') : 'Desconocida';
+  
+  // Detectar si es IP de ZeroTier (rango 172.x.x.x)
+  if (cleanIP.match(/^172\./)) {
+    return cleanIP + ' (ZeroTier)';
   }
+  
+  return cleanIP;
 }
 
 // Rutas
-app.get('/', async (req, res) => {
-  const zerotierIP = await getZeroTierIP();
+app.get('/', (req, res) => {
+  const clientIP = getClientIP(req);
   
   res.render('home', {
     title: 'OzNet - Red Privada',
-    zerotierIP: zerotierIP,
+    zerotierIP: clientIP,
     services: [
       {
         name: 'home.oznet',
