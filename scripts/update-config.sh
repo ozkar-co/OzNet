@@ -57,6 +57,12 @@ update_nginx() {
     # Copy new configuration
     cp config/nginx.conf /etc/nginx/sites-available/oznet
     
+    # Verify SSL certificates exist
+    if [[ ! -f /etc/ssl/oznet/cert.pem ]] || [[ ! -f /etc/ssl/oznet/key.pem ]]; then
+        log "SSL certificates not found, generating..."
+        update_ssl
+    fi
+    
     # Test configuration
     if nginx -t; then
         log "✓ Nginx configuration test passed"
@@ -100,6 +106,10 @@ update_ssl() {
         -keyout /etc/ssl/oznet/key.pem \
         -out /etc/ssl/oznet/cert.pem \
         -subj "/C=ES/ST=State/L=City/O=OzNet/CN=*.oznet"
+    
+    # Set proper permissions
+    chmod 644 /etc/ssl/oznet/cert.pem
+    chmod 600 /etc/ssl/oznet/key.pem
     
     # Fix certificate permissions for web access
     if [[ -f /var/oznet/certs/oznet-ca.crt ]]; then
