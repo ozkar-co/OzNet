@@ -44,7 +44,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 // Configuración del directorio de archivos
 const FILES_ROOT = process.env.FILES_ROOT || '/var/oznet/files';
-const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10GB
 
 // Función para obtener información de archivos
 async function getFileInfo(filePath) {

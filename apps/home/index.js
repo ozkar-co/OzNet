@@ -1,6 +1,9 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const path = require('path');
+const { exec } = require('child_process');
+const util = require('util');
+const execAsync = util.promisify(exec);
 
 const app = express();
 
@@ -20,10 +23,23 @@ app.set('views', path.join(__dirname, 'views'));
 // Servir archivos estáticos
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
+// Función para obtener IP de ZeroTier
+async function getZeroTierIP() {
+  try {
+    const { stdout } = await execAsync('zerotier-cli listnetworks | grep 9bee8941b563441a | awk \'{print $3}\'');
+    return stdout.trim();
+  } catch (error) {
+    return 'No conectado';
+  }
+}
+
 // Rutas
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  const zerotierIP = await getZeroTierIP();
+  
   res.render('home', {
     title: 'OzNet - Red Privada',
+    zerotierIP: zerotierIP,
     services: [
       {
         name: 'home.oznet',
