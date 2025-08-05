@@ -178,20 +178,31 @@ sudo bash scripts/fix-ssl-persistence.sh --create-copies
 
 The certificates are available at:
 - **Web access**: `https://home.oznet/certs/oznet-ca.crt`
-- **Local copies**: `/var/oznet/certs/local/`
-- **Distribution package**: `/var/oznet/certs/local/oznet-certificates.zip` (or `.tar.gz`)
+- **Local copies**: `./certs/local/` (in the directory where you run the script)
+- **Distribution package**: `./certs/local/oznet-certificates.zip` (or `.tar.gz`)
+
+**Note**: The distribution package is created in the current working directory where you run the script.
+
+### Workflow Summary
+
+1. **Server**: Run `--create-copies` to generate certificates and distribution package in current directory
+2. **Local Machine**: Distribution package is already in your current directory
+3. **Client Machines**: Install certificates from the distribution package
 
 ### 3. Distribute to Clients
 
-Copy the files from `/var/oznet/certs/local/` to your clients:
+The distribution package is already in your current directory. You can now distribute it to clients:
 
 ```bash
-# From your local machine, copy the distribution package
-scp user@your-server-ip:/var/oznet/certs/local/oznet-certificates.zip ./
+# The files are already in ./certs/local/
+# You can copy them directly to client machines
+
+# Or distribute the zip/tar.gz package
+cp ./certs/local/oznet-certificates.zip /path/to/client/machine/
 
 # Or copy individual files
-scp user@your-server-ip:/var/oznet/certs/local/oznet-ca.crt ./
-scp user@your-server-ip:/var/oznet/certs/local/install-ca.sh ./
+cp ./certs/local/oznet-ca.crt /path/to/client/machine/
+cp ./certs/local/install-ca.sh /path/to/client/machine/
 ```
 
 ### 4. Install on Client Devices

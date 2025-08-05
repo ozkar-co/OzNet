@@ -341,20 +341,23 @@ force_regenerate_certificates() {
 create_local_cert_copies() {
     log "Creating local copies of certificates for distribution..."
     
-    # Create local certs directory
-    mkdir -p /var/oznet/certs/local
+    # Create local certs directory in current working directory
+    local current_dir=$(pwd)
+    local local_certs_dir="$current_dir/certs/local"
+    
+    mkdir -p "$local_certs_dir"
     
     # Copy CA certificate
-    cp /etc/ssl/oznet-ca/certs/ca.crt /var/oznet/certs/local/oznet-ca.crt
+    cp /etc/ssl/oznet-ca/certs/ca.crt "$local_certs_dir/oznet-ca.crt"
     
     # Copy server certificate (for reference)
-    cp /etc/ssl/oznet/cert.pem /var/oznet/certs/local/oznet-server.crt
+    cp /etc/ssl/oznet/cert.pem "$local_certs_dir/oznet-server.crt"
     
     # Create certificate bundle (CA + server cert)
-    cat /etc/ssl/oznet-ca/certs/ca.crt /etc/ssl/oznet/cert.pem > /var/oznet/certs/local/oznet-bundle.crt
+    cat /etc/ssl/oznet-ca/certs/ca.crt /etc/ssl/oznet/cert.pem > "$local_certs_dir/oznet-bundle.crt"
     
     # Create certificate information file
-    cat > /var/oznet/certs/local/README.txt << 'EOF'
+    cat > "$local_certs_dir/README.txt" << 'EOF'
 OzNet SSL Certificates for Client Distribution
 ==============================================
 
@@ -401,7 +404,7 @@ For support, visit: https://home.oznet/docs
 EOF
     
     # Create installation script for local copies
-    cat > /var/oznet/certs/local/install-ca.sh << 'EOF'
+    cat > "$local_certs_dir/install-ca.sh" << 'EOF'
 #!/bin/bash
 
 # OzNet CA Certificate Installation Script
@@ -468,22 +471,21 @@ echo ""
 echo "Test the installation by visiting: https://home.oznet"
 EOF
     
-    chmod +x /var/oznet/certs/local/install-ca.sh
+    chmod +x "$local_certs_dir/install-ca.sh"
     
     # Set proper permissions for all files
-    chown -R www-data:www-data /var/oznet/certs/local
-    chmod 644 /var/oznet/certs/local/*.crt
-    chmod 644 /var/oznet/certs/local/*.txt
-    chmod 755 /var/oznet/certs/local/*.sh
+    chmod 644 "$local_certs_dir"/*.crt
+    chmod 644 "$local_certs_dir"/*.txt
+    chmod 755 "$local_certs_dir"/*.sh
     
     # Create a zip file for easy distribution
-    cd /var/oznet/certs/local
+    cd "$local_certs_dir"
     zip -r oznet-certificates.zip . > /dev/null 2>&1 || {
         # If zip is not available, create a tar.gz
         tar -czf oznet-certificates.tar.gz . > /dev/null 2>&1 || true
     }
     
-    log "✓ Local certificate copies created in /var/oznet/certs/local/"
+    log "✓ Local certificate copies created in $local_certs_dir/"
     log "✓ Distribution package created (zip or tar.gz)"
 }
 
@@ -721,7 +723,7 @@ main() {
     echo "  • Server Key: /etc/ssl/oznet/key.pem"
     echo "  • CA Cert: /etc/ssl/oznet-ca/certs/ca.crt"
     echo "  • Client Cert: /var/oznet/certs/oznet-ca.crt"
-    echo "  • Local Copies: /var/oznet/certs/local/"
+    echo "  • Local Copies: $(pwd)/certs/local/"
     echo
     echo -e "${GREEN}Services:${NC}"
     echo "  • oznet-ssl: $(systemctl is-active oznet-ssl 2>/dev/null || echo 'not installed')"
