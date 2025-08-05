@@ -191,6 +191,21 @@ If SSL is completely broken:
    sudo bash /opt/oznet/scripts/fix-ssl-persistence.sh --test
    ```
 
+## Certificate Conflicts
+
+If you get "certificate already exists" errors:
+
+```bash
+# Force regenerate (clears all existing certificates)
+sudo bash /opt/oznet/scripts/fix-ssl-persistence.sh --force-regenerate
+
+# This will:
+# 1. Stop services using certificates
+# 2. Backup existing certificates
+# 3. Remove all certificate files
+# 4. Regenerate fresh certificates
+```
+
 ## Support
 
 If you continue to experience SSL issues:

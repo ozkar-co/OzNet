@@ -156,6 +156,9 @@ sudo bash scripts/fix-ssl-persistence.sh --fix-permissions
 sudo bash scripts/fix-ssl-persistence.sh --regenerate
 sudo bash scripts/fix-ssl-persistence.sh --create-service
 
+# Force regenerate (clear all existing certificates)
+sudo bash scripts/fix-ssl-persistence.sh --force-regenerate
+
 # Create local certificate copies for distribution
 sudo bash scripts/fix-ssl-persistence.sh --create-copies
 ```

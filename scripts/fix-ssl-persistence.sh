@@ -311,6 +311,32 @@ EOF
     log "✓ Certificates regenerated successfully"
 }
 
+# Force regenerate certificates (clear everything first)
+force_regenerate_certificates() {
+    log "Force regenerating SSL certificates (clearing all existing certificates)..."
+    
+    # Stop services that might be using certificates
+    systemctl stop nginx 2>/dev/null || true
+    
+    # Backup existing certificates
+    local backup_dir="/etc/ssl/oznet-ca/backup.$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$backup_dir"
+    
+    if [[ -d /etc/ssl/oznet-ca ]]; then
+        cp -r /etc/ssl/oznet-ca/* "$backup_dir/" 2>/dev/null || true
+        log "✓ Existing certificates backed up to $backup_dir"
+    fi
+    
+    # Remove all existing certificate files
+    rm -rf /etc/ssl/oznet-ca
+    rm -rf /etc/ssl/oznet
+    
+    # Regenerate certificates
+    regenerate_certificates
+    
+    log "✓ Certificates force regenerated successfully"
+}
+
 # Create local copies of certificates for distribution
 create_local_cert_copies() {
     log "Creating local copies of certificates for distribution..."
@@ -581,6 +607,7 @@ main() {
     local check_flag=true
     local fix_permissions_flag=false
     local regenerate_flag=false
+    local force_regenerate_flag=false
     local create_service_flag=false
     local test_flag=false
     local restart_flag=false
@@ -601,6 +628,11 @@ main() {
             --regenerate)
                 check_flag=false
                 regenerate_flag=true
+                shift
+                ;;
+            --force-regenerate)
+                check_flag=false
+                force_regenerate_flag=true
                 shift
                 ;;
             --create-service)
@@ -658,7 +690,9 @@ main() {
         fix_certificate_permissions
     fi
     
-    if [[ "$regenerate_flag" == true ]]; then
+    if [[ "$force_regenerate_flag" == true ]]; then
+        force_regenerate_certificates
+    elif [[ "$regenerate_flag" == true ]]; then
         regenerate_certificates
     fi
     
