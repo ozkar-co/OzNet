@@ -414,9 +414,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to run on both `http://3dprint.oznet` and `https://3dprint.oznet` and proxy to `http://172.26.0.1:5000`.
+OctoPrint is configured to run on `http://3dprint.oznet` and proxy to `http://172.26.0.1:5000`. HTTPS requests are automatically redirected to HTTP.
 
-**Note**: Both HTTP and HTTPS are supported to handle different client configurations and avoid redirect loops. OctoPrint runs on the same server as nginx.
+**Note**: OctoPrint runs on HTTP only to avoid redirect loops and simplify the configuration. OctoPrint runs on the same server as nginx.
 
 ### Prerequisites
 
@@ -433,7 +433,7 @@ sudo systemctl enable octoprint
 ### Configuration Details
 
 The nginx configuration for OctoPrint includes:
-- **HTTP and HTTPS proxy** to handle all client configurations
+- **HTTP-only proxy** with automatic HTTPS to HTTP redirect
 - **WebSocket support** for real-time communication
 - **Proper headers** for OctoPrint functionality
 - **Health check endpoint** at `/health`
@@ -496,10 +496,10 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
 
 4. **Test with curl** (bypasses browser cache):
    ```bash
-   # Test HTTP
+   # Test HTTP (should work directly)
    curl -I http://3dprint.oznet
    
-   # Test HTTPS
+   # Test HTTPS (should redirect to HTTP)
    curl -I -k https://3dprint.oznet
    ```
 
@@ -509,15 +509,16 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
    sudo systemctl restart nginx
    ```
 
-### OctoPrint Redirect Loop Solution
+### OctoPrint HTTP-Only Solution
 
-If OctoPrint is causing redirect loops (308 responses), the nginx configuration includes:
+To avoid redirect loops completely, OctoPrint is configured to run on HTTP only:
 
-- **Trailing slash in proxy_pass**: `proxy_pass http://172.26.0.1:5000/;`
-- **Proper redirect handling**: Converts internal redirects to external URLs
-- **WebSocket exclusion**: WebSocket connections don't use redirects
+- **HTTP-only proxy**: `proxy_pass http://172.26.0.1:5000;`
+- **HTTPS redirect**: HTTPS requests are redirected to HTTP with `return 301 http://$server_name$request_uri;`
+- **Disabled redirects**: `proxy_redirect off;` prevents nginx from modifying OctoPrint's redirects
+- **WebSocket support**: WebSocket connections work normally
 
-This prevents OctoPrint's automatic redirects from creating infinite loops.
+This eliminates all HTTPS-related redirect loops while maintaining full functionality.
 
 ### Troubleshooting: Wrong Content Displayed
 
