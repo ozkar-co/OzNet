@@ -414,7 +414,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to run on `https://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
+OctoPrint is configured to run on `http://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
+
+**Note**: OctoPrint runs on HTTP to avoid redirect loops. If you need HTTPS, configure it directly in OctoPrint.
 
 ### Prerequisites
 
@@ -431,7 +433,7 @@ sudo systemctl enable octoprint
 ### Configuration Details
 
 The nginx configuration for OctoPrint includes:
-- **SSL termination** with automatic HTTP to HTTPS redirect
+- **HTTP proxy** to avoid redirect loops
 - **WebSocket support** for real-time communication
 - **Proper headers** for OctoPrint functionality
 - **Health check endpoint** at `/health`
@@ -481,9 +483,10 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
    server:
      host: 0.0.0.0
      port: 5000
-     # Disable HTTPS redirect if behind reverse proxy
+     # Ensure no SSL/HTTPS configuration to avoid redirect loops
      # sslCert: /path/to/cert.pem
      # sslKey: /path/to/key.pem
+     # allowFraming: true  # If you need to embed in iframes
    ```
 
 3. **Restart OctoPrint**:
@@ -493,7 +496,7 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
 
 4. **Test with curl** (bypasses browser cache):
    ```bash
-   curl -I -k https://3dprint.oznet
+   curl -I http://3dprint.oznet
    ```
 
 5. **Check nginx configuration**:
