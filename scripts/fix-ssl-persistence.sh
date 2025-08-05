@@ -129,7 +129,14 @@ regenerate_certificates() {
     chmod 700 /etc/ssl/oznet-ca/private
     chmod 700 /etc/ssl/oznet/private
     
-    # Create CA database
+    # Clear existing CA database to avoid conflicts
+    log "Clearing existing CA database..."
+    rm -f /etc/ssl/oznet-ca/index.txt
+    rm -f /etc/ssl/oznet-ca/serial
+    rm -f /etc/ssl/oznet-ca/index.txt.attr
+    rm -f /etc/ssl/oznet-ca/crlnumber
+    
+    # Create fresh CA database
     touch /etc/ssl/oznet-ca/index.txt
     echo "01" > /etc/ssl/oznet-ca/serial
     
