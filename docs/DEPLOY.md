@@ -509,6 +509,16 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
    sudo systemctl restart nginx
    ```
 
+### OctoPrint Redirect Loop Solution
+
+If OctoPrint is causing redirect loops (308 responses), the nginx configuration includes:
+
+- **Trailing slash in proxy_pass**: `proxy_pass http://172.26.0.1:5000/;`
+- **Proper redirect handling**: Converts internal redirects to external URLs
+- **WebSocket exclusion**: WebSocket connections don't use redirects
+
+This prevents OctoPrint's automatic redirects from creating infinite loops.
+
 ### Troubleshooting: Wrong Content Displayed
 
 If `3dprint.oznet` shows the main OzNet page instead of OctoPrint:
