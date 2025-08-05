@@ -39,6 +39,12 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const subdomain = req.subdomain;
   
+  // Excluir subdominios que deben ser manejados por nginx directamente
+  if (subdomain === '3dprint') {
+    // 3dprint.oznet debe ser manejado por nginx, no por este servidor
+    return res.status(404).send('Servicio no disponible en este servidor');
+  }
+  
   // Rutas de desarrollo (funcionan sin subdominios)
   if (req.path.startsWith('/home')) {
     return homeApp(req, res, next);
@@ -112,6 +118,7 @@ app.get('/', (req, res) => {
             <li><a href="https://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
             <li><a href="https://files.oznet">files.oznet</a> - Servidor de archivos</li>
             <li><a href="https://server.oznet">server.oznet</a> - Servidor principal</li>
+            <li><a href="https://3dprint.oznet">3dprint.oznet</a> - OctoPrint (manejado por nginx)</li>
           </ul>
           <p><strong>Para desarrollo:</strong></p>
           <ul>
@@ -139,7 +146,7 @@ app.listen(PORT, () => {
   console.log('   • server.oznet - Main server');
   console.log('   • mail.oznet - Mail server (coming soon)');
   console.log('   • wiki.oznet - Kiwix server (coming soon)');
-  console.log('   • 3dprint.oznet - OctoPrint (coming soon)');
+  console.log('   • 3dprint.oznet - OctoPrint (handled by nginx)');
   console.log('');
   console.log('🔧 Development routes:');
   console.log('   • http://localhost:3000/home');

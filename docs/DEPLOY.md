@@ -414,9 +414,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to run on `http://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
+OctoPrint is configured to run on both `http://3dprint.oznet` and `https://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
 
-**Note**: OctoPrint runs on HTTP to avoid redirect loops. If you need HTTPS, configure it directly in OctoPrint.
+**Note**: Both HTTP and HTTPS are supported to handle different client configurations and avoid redirect loops.
 
 ### Prerequisites
 
@@ -433,7 +433,7 @@ sudo systemctl enable octoprint
 ### Configuration Details
 
 The nginx configuration for OctoPrint includes:
-- **HTTP proxy** to avoid redirect loops
+- **HTTP and HTTPS proxy** to handle all client configurations
 - **WebSocket support** for real-time communication
 - **Proper headers** for OctoPrint functionality
 - **Health check endpoint** at `/health`
@@ -496,13 +496,48 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
 
 4. **Test with curl** (bypasses browser cache):
    ```bash
+   # Test HTTP
    curl -I http://3dprint.oznet
+   
+   # Test HTTPS
+   curl -I -k https://3dprint.oznet
    ```
 
 5. **Check nginx configuration**:
    ```bash
    sudo nginx -t
    sudo systemctl restart nginx
+   ```
+
+### Troubleshooting: Wrong Content Displayed
+
+If `3dprint.oznet` shows the main OzNet page instead of OctoPrint:
+
+1. **Check nginx configuration order**:
+   - The `3dprint.oznet` server blocks should come BEFORE the main OzNet server blocks
+   - This ensures nginx matches the correct server block first
+
+2. **Verify OctoPrint is running**:
+   ```bash
+   sudo systemctl status octoprint
+   sudo netstat -tlnp | grep :5000
+   ```
+
+3. **Test direct access to OctoPrint**:
+   ```bash
+   curl -I http://127.0.0.1:5000
+   ```
+
+4. **Check nginx logs**:
+   ```bash
+   sudo tail -f /var/log/nginx/error.log
+   sudo tail -f /var/log/nginx/access.log
+   ```
+
+5. **Restart both services**:
+   ```bash
+   sudo systemctl restart nginx
+   sudo systemctl restart oznet
    ```
 
 ### OctoPrint Configuration
