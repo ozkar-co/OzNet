@@ -122,6 +122,40 @@ Updates all components including SSL, DNS, and application:
 sudo bash scripts/update-config.sh --all --test
 ```
 
+### Adding New Services (OctoPrint Example)
+
+To add a new service like OctoPrint to your OzNet setup:
+
+1. **Update DNS Configuration** (if needed):
+   - The `3dprint.oznet` entry is already configured in `config/dnsmasq.conf`
+   - If adding a new subdomain, add it to the `address=/` section
+
+2. **Update Nginx Configuration**:
+   - Modify `config/nginx.conf` to include the new service
+   - Create separate server blocks for different services if needed
+   - Example: OctoPrint configuration is already included in the updated config
+
+3. **Deploy the Changes**:
+   ```bash
+   # Update DNS and Nginx configurations
+   sudo bash scripts/update-config.sh --dns --nginx --test
+   
+   # Or update everything
+   sudo bash scripts/update-config.sh --all --test
+   ```
+
+4. **Verify the Service**:
+   ```bash
+   # Test DNS resolution
+   nslookup 3dprint.oznet 127.0.0.1
+   
+   # Test HTTPS access
+   curl -I -k https://3dprint.oznet
+   
+   # Check nginx configuration
+   sudo nginx -t
+   ```
+
 ### Selective Updates
 
 Update only specific components:
@@ -374,6 +408,73 @@ Make it executable and run:
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
+```
+
+## OctoPrint Integration
+
+### Current Configuration
+
+OctoPrint is configured to run on `https://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
+
+### Prerequisites
+
+Ensure OctoPrint is running on port 5000:
+```bash
+# Check if OctoPrint is running
+sudo systemctl status octoprint
+
+# If not running, start it
+sudo systemctl start octoprint
+sudo systemctl enable octoprint
+```
+
+### Configuration Details
+
+The nginx configuration for OctoPrint includes:
+- **SSL termination** with automatic HTTP to HTTPS redirect
+- **WebSocket support** for real-time communication
+- **Proper headers** for OctoPrint functionality
+- **Health check endpoint** at `/health`
+
+### Troubleshooting OctoPrint
+
+If OctoPrint is not accessible:
+
+1. **Check OctoPrint service**:
+   ```bash
+   sudo systemctl status octoprint
+   sudo journalctl -u octoprint -f
+   ```
+
+2. **Verify port 5000 is listening**:
+   ```bash
+   sudo netstat -tlnp | grep :5000
+   ```
+
+3. **Test direct access**:
+   ```bash
+   curl -I http://127.0.0.1:5000
+   ```
+
+4. **Check nginx logs**:
+   ```bash
+   sudo tail -f /var/log/nginx/error.log
+   ```
+
+5. **Verify DNS resolution**:
+   ```bash
+   nslookup 3dprint.oznet 127.0.0.1
+   ```
+
+### OctoPrint Configuration
+
+If you need to modify OctoPrint settings:
+```bash
+# Edit OctoPrint config
+sudo nano /etc/octoprint/config.yaml
+
+# Restart OctoPrint
+sudo systemctl restart octoprint
 ```
 
 ## Support
