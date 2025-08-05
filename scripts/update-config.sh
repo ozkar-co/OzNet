@@ -94,31 +94,10 @@ update_dns() {
 update_ssl() {
     log "Updating SSL certificates..."
     
-    # Create SSL directory if it doesn't exist
-    mkdir -p /etc/ssl/oznet
+    # Run SSL persistence fix to ensure proper certificate setup
+    bash scripts/fix-ssl-persistence.sh --regenerate --fix-permissions --create-service
     
-    # Backup existing certificates
-    backup_config "/etc/ssl/oznet/cert.pem"
-    backup_config "/etc/ssl/oznet/key.pem"
-    
-    # Generate new self-signed certificate
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout /etc/ssl/oznet/key.pem \
-        -out /etc/ssl/oznet/cert.pem \
-        -subj "/C=ES/ST=State/L=City/O=OzNet/CN=*.oznet"
-    
-    # Set proper permissions
-    chmod 644 /etc/ssl/oznet/cert.pem
-    chmod 600 /etc/ssl/oznet/key.pem
-    
-    # Fix certificate permissions for web access
-    if [[ -f /var/oznet/certs/oznet-ca.crt ]]; then
-        chown www-data:www-data /var/oznet/certs/oznet-ca.crt
-        chmod 644 /var/oznet/certs/oznet-ca.crt
-        log "✓ Fixed certificate permissions"
-    fi
-    
-    log "✓ SSL certificates updated"
+    log "✓ SSL certificates updated with persistence"
 }
 
 # Update OzNet application

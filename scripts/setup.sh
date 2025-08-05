@@ -126,14 +126,9 @@ EOF
 configure_nginx() {
     log "Configuring Nginx..."
     
-    # Create SSL directory
-    mkdir -p /etc/ssl/oznet
-    
-    # Generate self-signed certificate
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout /etc/ssl/oznet/key.pem \
-        -out /etc/ssl/oznet/cert.pem \
-        -subj "/C=ES/ST=State/L=City/O=OzNet/CN=*.oznet"
+    # Run SSL persistence fix to ensure proper certificate setup
+    log "Setting up SSL certificates with persistence..."
+    bash scripts/fix-ssl-persistence.sh --all
     
     # Copy Nginx configuration
     cp config/nginx.conf /etc/nginx/sites-available/oznet
