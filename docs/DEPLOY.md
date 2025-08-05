@@ -414,9 +414,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to run on `http://3dprint.oznet` and proxy to `http://172.26.0.1:5000`. HTTPS requests are automatically redirected to HTTP.
+OctoPrint is configured to redirect directly to `http://172.26.0.1:5000` when accessing `3dprint.oznet`. Both HTTP and HTTPS requests redirect directly to OctoPrint.
 
-**Note**: OctoPrint runs on HTTP only to avoid redirect loops and simplify the configuration. OctoPrint runs on the same server as nginx.
+**Note**: This is a simple redirect solution that avoids all proxy-related issues. Users will see the IP address in their browser but OctoPrint will work perfectly.
 
 ### Prerequisites
 
@@ -433,10 +433,10 @@ sudo systemctl enable octoprint
 ### Configuration Details
 
 The nginx configuration for OctoPrint includes:
-- **HTTP-only proxy** with automatic HTTPS to HTTP redirect
-- **WebSocket support** for real-time communication
-- **Proper headers** for OctoPrint functionality
-- **Health check endpoint** at `/health`
+- **Direct redirect** to OctoPrint's IP address
+- **Simple and reliable** - no proxy complications
+- **Works immediately** without complex configuration
+- **No redirect loops** - single redirect to OctoPrint
 
 ### Troubleshooting OctoPrint
 
@@ -509,17 +509,16 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
    sudo systemctl restart nginx
    ```
 
-### OctoPrint HTTP-Only Solution
+### OctoPrint Direct Redirect Solution
 
-To avoid redirect loops completely, OctoPrint is configured to run on HTTP only following [official OctoPrint reverse proxy guidelines](https://community.octoprint.org/t/reverse-proxy-configuration/1107):
+To completely avoid proxy-related issues, OctoPrint uses a simple redirect approach:
 
-- **HTTP-only proxy**: `proxy_pass http://172.26.0.1:5000;`
-- **HTTPS redirect**: HTTPS requests are redirected to HTTP with `return 301 http://$server_name$request_uri;`
-- **Critical headers**: All required headers for OctoPrint reverse proxy functionality
-- **WebSocket support**: WebSocket connections work normally
-- **Proper redirect handling**: `proxy_redirect default` allows OctoPrint to handle its own redirects properly
+- **Direct redirect**: `return 301 http://172.26.0.1:5000$request_uri;`
+- **No proxy complications**: Eliminates all proxy header and redirect issues
+- **Immediate functionality**: Works without complex configuration
+- **Single redirect**: No loops, just one redirect to OctoPrint
 
-This configuration follows OctoPrint's official recommendations and eliminates all redirect loops while maintaining full functionality.
+This is the simplest and most reliable solution that guarantees OctoPrint will work without any proxy-related problems.
 
 ### Troubleshooting: Wrong Content Displayed
 
