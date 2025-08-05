@@ -466,6 +466,42 @@ If OctoPrint is not accessible:
    nslookup 3dprint.oznet 127.0.0.1
    ```
 
+### Fixing Redirect Loops
+
+If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
+
+1. **Clear browser cache and cookies** for the domain
+2. **Check OctoPrint configuration**:
+   ```bash
+   sudo nano /etc/octoprint/config.yaml
+   ```
+   
+   Ensure these settings are correct:
+   ```yaml
+   server:
+     host: 0.0.0.0
+     port: 5000
+     # Disable HTTPS redirect if behind reverse proxy
+     # sslCert: /path/to/cert.pem
+     # sslKey: /path/to/key.pem
+   ```
+
+3. **Restart OctoPrint**:
+   ```bash
+   sudo systemctl restart octoprint
+   ```
+
+4. **Test with curl** (bypasses browser cache):
+   ```bash
+   curl -I -k https://3dprint.oznet
+   ```
+
+5. **Check nginx configuration**:
+   ```bash
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
+
 ### OctoPrint Configuration
 
 If you need to modify OctoPrint settings:
