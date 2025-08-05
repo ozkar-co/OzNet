@@ -414,9 +414,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to run on both `http://3dprint.oznet` and `https://3dprint.oznet` and proxy to `http://127.0.0.1:5000`.
+OctoPrint is configured to run on both `http://3dprint.oznet` and `https://3dprint.oznet` and proxy to `http://172.26.0.1:5000`.
 
-**Note**: Both HTTP and HTTPS are supported to handle different client configurations and avoid redirect loops.
+**Note**: Both HTTP and HTTPS are supported to handle different client configurations and avoid redirect loops. OctoPrint runs on the same server as nginx.
 
 ### Prerequisites
 
@@ -525,7 +525,7 @@ If `3dprint.oznet` shows the main OzNet page instead of OctoPrint:
 
 3. **Test direct access to OctoPrint**:
    ```bash
-   curl -I http://127.0.0.1:5000
+   curl -I http://172.26.0.1:5000
    ```
 
 4. **Check nginx logs**:
