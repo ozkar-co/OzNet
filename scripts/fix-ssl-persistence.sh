@@ -266,11 +266,35 @@ DNS.8 = 3dprint.oznet
 IP.1 = 172.26.0.1
 EOF
     
-    # Sign certificate with CA
-    openssl ca -batch -config /etc/ssl/oznet-ca/openssl.cnf \
+    # Sign certificate with CA (with error handling for existing certificates)
+    log "Signing server certificate..."
+    if ! openssl ca -batch -config /etc/ssl/oznet-ca/openssl.cnf \
         -in /etc/ssl/oznet/server.csr \
         -out /etc/ssl/oznet/cert.pem \
-        -extensions v3_req
+        -extensions v3_req 2>/dev/null; then
+        
+        log "Certificate already exists, revoking and recreating..."
+        # Revoke existing certificate if it exists
+        if [[ -f /etc/ssl/oznet-ca/index.txt ]]; then
+            # Find the certificate serial number
+            local serial=$(grep -E "V.*CN=.*\.oznet" /etc/ssl/oznet-ca/index.txt | head -1 | cut -f4)
+            if [[ -n "$serial" ]]; then
+                openssl ca -config /etc/ssl/oznet-ca/openssl.cnf -revoke /etc/ssl/oznet-ca/newcerts/${serial}.pem 2>/dev/null || true
+            fi
+        fi
+        
+        # Clear the database and try again
+        rm -f /etc/ssl/oznet-ca/index.txt
+        rm -f /etc/ssl/oznet-ca/index.txt.attr
+        touch /etc/ssl/oznet-ca/index.txt
+        echo "01" > /etc/ssl/oznet-ca/serial
+        
+        # Sign certificate again
+        openssl ca -batch -config /etc/ssl/oznet-ca/openssl.cnf \
+            -in /etc/ssl/oznet/server.csr \
+            -out /etc/ssl/oznet/cert.pem \
+            -extensions v3_req
+    fi
     
     # Copy private key to expected location
     cp /etc/ssl/oznet/private/server.key /etc/ssl/oznet/key.pem
@@ -536,6 +560,7 @@ usage() {
     echo "  --check              Check certificate status (default)"
     echo "  --fix-permissions    Fix certificate permissions"
     echo "  --regenerate         Regenerate all certificates"
+    echo "  --force-regenerate   Force regenerate (clear all existing certificates)"
     echo "  --create-service     Create systemd service for SSL persistence"
     echo "  --test               Test SSL configuration"
     echo "  --restart            Restart all services"
@@ -547,6 +572,7 @@ usage() {
     echo "  $0                   # Check certificate status"
     echo "  $0 --all             # Run all fixes"
     echo "  $0 --regenerate      # Regenerate certificates only"
+    echo "  $0 --force-regenerate # Force regenerate (clear everything)"
     echo "  $0 --create-copies   # Create local certificate copies only"
 }
 
