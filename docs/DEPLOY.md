@@ -511,14 +511,15 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
 
 ### OctoPrint HTTP-Only Solution
 
-To avoid redirect loops completely, OctoPrint is configured to run on HTTP only:
+To avoid redirect loops completely, OctoPrint is configured to run on HTTP only following [official OctoPrint reverse proxy guidelines](https://community.octoprint.org/t/reverse-proxy-configuration/1107):
 
 - **HTTP-only proxy**: `proxy_pass http://172.26.0.1:5000;`
 - **HTTPS redirect**: HTTPS requests are redirected to HTTP with `return 301 http://$server_name$request_uri;`
-- **Proper redirect handling**: `proxy_redirect` converts internal OctoPrint redirects to external URLs
+- **Critical headers**: All required headers for OctoPrint reverse proxy functionality
 - **WebSocket support**: WebSocket connections work normally
+- **No redirect loops**: `proxy_redirect off` prevents nginx from interfering with OctoPrint's redirects
 
-This eliminates all redirect loops while maintaining full functionality.
+This configuration follows OctoPrint's official recommendations and eliminates all redirect loops while maintaining full functionality.
 
 ### Troubleshooting: Wrong Content Displayed
 
@@ -561,6 +562,32 @@ sudo nano /etc/octoprint/config.yaml
 # Restart OctoPrint
 sudo systemctl restart octoprint
 ```
+
+#### Reverse Proxy Configuration
+
+According to [official OctoPrint documentation](https://community.octoprint.org/t/reverse-proxy-configuration/1107), you may need to configure OctoPrint to trust the reverse proxy:
+
+**For OctoPrint up to 1.10.x:**
+```yaml
+server:
+  reverseProxy:
+    trustedDownstream:
+      - "127.0.0.0/8"
+      - "::1"
+      - "172.26.0.1"
+```
+
+**For OctoPrint 1.11.0+:**
+```yaml
+server:
+  reverseProxy:
+    trustedProxies:
+      - "172.26.0.1"
+      - "127.0.0.0/8"
+      - "::1"
+```
+
+This ensures OctoPrint correctly identifies client IPs and handles security properly behind the reverse proxy.
 
 ## Support
 
