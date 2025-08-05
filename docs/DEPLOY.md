@@ -517,7 +517,7 @@ To avoid redirect loops completely, OctoPrint is configured to run on HTTP only 
 - **HTTPS redirect**: HTTPS requests are redirected to HTTP with `return 301 http://$server_name$request_uri;`
 - **Critical headers**: All required headers for OctoPrint reverse proxy functionality
 - **WebSocket support**: WebSocket connections work normally
-- **No redirect loops**: `proxy_redirect off` prevents nginx from interfering with OctoPrint's redirects
+- **Proper redirect handling**: `proxy_redirect default` allows OctoPrint to handle its own redirects properly
 
 This configuration follows OctoPrint's official recommendations and eliminates all redirect loops while maintaining full functionality.
 
