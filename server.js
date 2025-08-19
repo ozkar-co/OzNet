@@ -51,16 +51,22 @@ const octoprintProxy = createProxyMiddleware({
   secure: false, // Allow insecure connections
   logLevel: 'debug', // Enable logging for debugging
   onProxyReq: (proxyReq, req, res) => {
-    // Set headers for OctoPrint
+    // Set headers for OctoPrint according to official documentation
     proxyReq.setHeader('Host', '172.26.0.1:5000');
     proxyReq.setHeader('X-Forwarded-Host', req.get('Host'));
-    proxyReq.setHeader('X-Forwarded-Proto', req.protocol);
+    proxyReq.setHeader('X-Forwarded-Proto', 'https'); // Force HTTPS
     proxyReq.setHeader('X-Forwarded-For', req.ip || req.connection.remoteAddress);
     proxyReq.setHeader('X-Real-IP', req.ip || req.connection.remoteAddress);
     proxyReq.setHeader('X-Script-Name', '/');
-    proxyReq.setHeader('X-Scheme', req.protocol);
+    proxyReq.setHeader('X-Scheme', 'https'); // Force HTTPS
     
     console.log('Proxying to OctoPrint:', req.method, req.url);
+    console.log('Headers set:', {
+      'X-Forwarded-Host': req.get('Host'),
+      'X-Forwarded-Proto': 'https',
+      'X-Forwarded-For': req.ip || req.connection.remoteAddress,
+      'X-Script-Name': '/'
+    });
   },
   onProxyRes: (proxyRes, req, res) => {
     console.log('OctoPrint response:', proxyRes.statusCode, proxyRes.headers.location);
