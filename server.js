@@ -3,7 +3,6 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
 // Importar las aplicaciones de cada servicio
 const homeApp = require('./apps/home');
@@ -32,112 +31,42 @@ app.use((req, res, next) => {
   const host = req.get('Host');
   const subdomain = host ? host.split('.')[0] : '';
   
-  console.log('=== REQUEST DEBUG ===');
-  console.log('Host header:', host);
-  console.log('Extracted subdomain:', subdomain);
-  console.log('Request URL:', req.url);
-  console.log('Request method:', req.method);
-  console.log('====================');
-  
   req.subdomain = subdomain;
   next();
-});
-
-// OctoPrint proxy configuration
-const octoprintProxy = createProxyMiddleware({
-  target: 'http://172.26.0.1:5000',
-  changeOrigin: true,
-  ws: true, // Enable WebSocket proxy
-  secure: false, // Allow insecure connections
-  logLevel: 'debug', // Enable logging for debugging
-  onProxyReq: (proxyReq, req, res) => {
-    // Set headers for OctoPrint according to official documentation
-    proxyReq.setHeader('Host', '172.26.0.1:5000');
-    proxyReq.setHeader('X-Forwarded-Host', req.get('Host'));
-    proxyReq.setHeader('X-Forwarded-Proto', 'https'); // Force HTTPS
-    proxyReq.setHeader('X-Forwarded-For', req.ip || req.connection.remoteAddress);
-    proxyReq.setHeader('X-Real-IP', req.ip || req.connection.remoteAddress);
-    proxyReq.setHeader('X-Script-Name', '/');
-    proxyReq.setHeader('X-Scheme', 'https'); // Force HTTPS
-    
-    console.log('Proxying to OctoPrint:', req.method, req.url);
-    console.log('Headers set:', {
-      'X-Forwarded-Host': req.get('Host'),
-      'X-Forwarded-Proto': 'https',
-      'X-Forwarded-For': req.ip || req.connection.remoteAddress,
-      'X-Script-Name': '/'
-    });
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    console.log('OctoPrint response:', proxyRes.statusCode, proxyRes.headers.location);
-    
-    // Handle redirects from OctoPrint
-    if (proxyRes.headers.location) {
-      const location = proxyRes.headers.location;
-      console.log('Original redirect location:', location);
-      
-      // If OctoPrint tries to redirect to an internal URL, rewrite it
-      if (location.startsWith('/')) {
-        const newLocation = `https://3dprint.oznet${location}`;
-        proxyRes.headers.location = newLocation;
-        console.log('Rewritten redirect location:', newLocation);
-      }
-    }
-    
-    // Remove any problematic headers
-    delete proxyRes.headers['x-frame-options'];
-    delete proxyRes.headers['x-content-type-options'];
-  },
-  onError: (err, req, res) => {
-    console.error('Proxy error:', err);
-    res.status(500).send('Proxy error: ' + err.message);
-  }
 });
 
 // Middleware para manejar subdominios
 app.use((req, res, next) => {
   const subdomain = req.subdomain;
   
-  console.log('=== SUBDOMAIN HANDLING ===');
-  console.log('Subdomain:', subdomain);
-  console.log('Request URL:', req.url);
-  console.log('==========================');
-  
-  // Handle OctoPrint subdomain
+  // Excluir subdominios que deben ser manejados por nginx directamente
   if (subdomain === '3dprint') {
-    console.log('Handling 3dprint request:', req.method, req.url);
-    return octoprintProxy(req, res, next);
+    // 3dprint.oznet debe ser manejado por nginx, no por este servidor
+    return res.status(404).send('Servicio no disponible en este servidor');
   }
   
   // Rutas de desarrollo (funcionan sin subdominios)
   if (req.path.startsWith('/home')) {
-    console.log('Handling /home route');
     return homeApp(req, res, next);
   }
   if (req.path.startsWith('/hub')) {
-    console.log('Handling /hub route');
     return hubApp(req, res, next);
   }
   if (req.path.startsWith('/files')) {
-    console.log('Handling /files route');
     return filesApp(req, res, next);
   }
   
   // Manejo de subdominios
   if (subdomain === 'home' || subdomain === 'server') {
-    console.log('Handling home/server subdomain');
     return homeApp(req, res, next);
   }
   if (subdomain === 'hub') {
-    console.log('Handling hub subdomain');
     return hubApp(req, res, next);
   }
   if (subdomain === 'files') {
-    console.log('Handling files subdomain');
     return filesApp(req, res, next);
   }
   
-  console.log('No specific handler found, continuing to default handler');
   next();
 });
 
@@ -174,7 +103,6 @@ app.get('/certs/:filename', (req, res) => {
 
 // Servidor por defecto para desarrollo
 app.get('/', (req, res) => {
-  console.log('Serving default page');
   res.send(`
     <html>
       <head>
@@ -190,7 +118,7 @@ app.get('/', (req, res) => {
             <li><a href="https://hub.oznet">hub.oznet</a> - Gestión de servicios</li>
             <li><a href="https://files.oznet">files.oznet</a> - Servidor de archivos</li>
             <li><a href="https://server.oznet">server.oznet</a> - Servidor principal</li>
-            <li><a href="https://3dprint.oznet">3dprint.oznet</a> - OctoPrint (manejado por Node.js)</li>
+            <li><a href="https://3dprint.oznet">3dprint.oznet</a> - OctoPrint (manejado por nginx)</li>
           </ul>
           <p><strong>Para desarrollo:</strong></p>
           <ul>
@@ -218,7 +146,7 @@ app.listen(PORT, () => {
   console.log('   • server.oznet - Main server');
   console.log('   • mail.oznet - Mail server (coming soon)');
   console.log('   • wiki.oznet - Kiwix server (coming soon)');
-  console.log('   • 3dprint.oznet - OctoPrint (proxied by Node.js)');
+  console.log('   • 3dprint.oznet - OctoPrint (handled by nginx)');
   console.log('');
   console.log('🔧 Development routes:');
   console.log('   • http://localhost:3000/home');
