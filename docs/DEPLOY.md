@@ -302,6 +302,9 @@ sudo journalctl -u oznet-ssl -f
 
 # Check DNS logs
 sudo tail -f /var/log/dnsmasq.log
+
+# Check OctoPrint logs
+sudo journalctl -u octoprint -f
 ```
 
 ## Rollback
@@ -323,6 +326,20 @@ sudo systemctl status nginx oznet
 ```
 
 ## Troubleshooting
+
+### Debugging Node.js Proxy
+
+The Node.js proxy includes debug logging to help troubleshoot issues:
+
+- **Request logging**: Shows all requests being proxied to OctoPrint
+- **Response logging**: Shows OctoPrint responses and redirects
+- **Error logging**: Shows any proxy errors
+- **Header logging**: Shows how headers are being modified
+
+Check the logs with:
+```bash
+sudo journalctl -u oznet -f
+```
 
 ### Common Issues
 
@@ -414,9 +431,9 @@ chmod +x deploy.sh
 
 ### Current Configuration
 
-OctoPrint is configured to redirect directly to `http://172.26.0.1:5000` when accessing `3dprint.oznet`. Both HTTP and HTTPS requests redirect directly to OctoPrint.
+OctoPrint is configured to run on `https://3dprint.oznet` and is proxied through Node.js to `http://172.26.0.1:5000`. The domain `3dprint.oznet` is preserved in the browser address bar.
 
-**Note**: This is a simple redirect solution that avoids all proxy-related issues. Users will see the IP address in their browser but OctoPrint will work perfectly.
+**Note**: This solution uses Node.js as a reverse proxy, which provides better control over headers and redirects while maintaining the domain name in the browser.
 
 ### Prerequisites
 
@@ -432,11 +449,11 @@ sudo systemctl enable octoprint
 
 ### Configuration Details
 
-The nginx configuration for OctoPrint includes:
-- **Direct redirect** to OctoPrint's IP address
-- **Simple and reliable** - no proxy complications
-- **Works immediately** without complex configuration
-- **No redirect loops** - single redirect to OctoPrint
+The Node.js proxy configuration for OctoPrint includes:
+- **Domain preservation** - `3dprint.oznet` stays in the browser address bar
+- **WebSocket support** - Real-time communication works perfectly
+- **Proper headers** - All required OctoPrint headers are set correctly
+- **Redirect handling** - Internal OctoPrint redirects are rewritten to external URLs
 
 ### Troubleshooting OctoPrint
 
@@ -509,16 +526,16 @@ If you encounter "ERR_TOO_MANY_REDIRECTS" or "redirected you too many times":
    sudo systemctl restart nginx
    ```
 
-### OctoPrint Direct Redirect Solution
+### OctoPrint Node.js Proxy Solution
 
-To completely avoid proxy-related issues, OctoPrint uses a simple redirect approach:
+To maintain the domain name while providing full functionality, OctoPrint uses Node.js as a reverse proxy:
 
-- **Direct redirect**: `return 301 http://172.26.0.1:5000$request_uri;`
-- **No proxy complications**: Eliminates all proxy header and redirect issues
-- **Immediate functionality**: Works without complex configuration
-- **Single redirect**: No loops, just one redirect to OctoPrint
+- **Domain preservation**: `3dprint.oznet` remains in the browser address bar
+- **Full proxy functionality**: All headers and WebSockets work correctly
+- **Redirect rewriting**: Internal OctoPrint redirects are converted to external URLs
+- **Better control**: Node.js provides more control over the proxy behavior
 
-This is the simplest and most reliable solution that guarantees OctoPrint will work without any proxy-related problems.
+This solution combines the best of both worlds: domain preservation and full functionality.
 
 ### Troubleshooting: Wrong Content Displayed
 
