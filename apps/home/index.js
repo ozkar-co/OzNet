@@ -50,6 +50,12 @@ app.get('/', (req, res) => {
         url: 'https://server.oznet'
       },
       {
+        name: 'cam.oznet',
+        description: 'Stream de cámara en vivo (MJPEG)',
+        status: 'active',
+        url: 'https://cam.oznet'
+      },
+      {
         name: 'mail.oznet',
         description: 'Interfaz web del servidor de correos',
         status: 'coming-soon',
