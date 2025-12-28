@@ -15,6 +15,10 @@ ingress:
   - hostname: home.ozkar.co
     service: http://localhost:3000
   
+  # OctoPrint - 3D printer management
+  - hostname: 3dprint.ozkar.co
+    service: http://localhost:5000
+  
   # Example: Add your external services here as they are deployed
   # Each service should:
   # 1. Run in its own repository
@@ -28,9 +32,6 @@ ingress:
   #
   # - hostname: wiki.ozkar.co
   #   service: http://localhost:3002
-  #
-  # - hostname: 3dprint.ozkar.co
-  #   service: http://localhost:5000
   #
   # - hostname: mail.ozkar.co
   #   service: http://localhost:8080

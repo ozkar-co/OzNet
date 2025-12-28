@@ -44,17 +44,18 @@ const SERVICES = [
     description: 'This service - Infrastructure hub and status dashboard',
     external: false
   },
+  {
+    name: 'OctoPrint',
+    url: 'http://localhost:5000',
+    healthEndpoint: '/', // OctoPrint doesn't have /health, use root
+    description: '3D printer management',
+    external: true
+  }
   // Example: Add external services like this
   // {
   //   name: 'Files Server',
   //   url: 'http://localhost:3001',
   //   description: 'File sharing and management',
-  //   external: true
-  // },
-  // {
-  //   name: 'OctoPrint',
-  //   url: 'http://localhost:5000',
-  //   description: '3D printer management',
   //   external: true
   // }
 ];
@@ -65,7 +66,9 @@ async function checkServiceHealth(service) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
-    const response = await fetch(`${service.url}/health`, {
+    // Use custom health endpoint if specified, otherwise use /health
+    const healthEndpoint = service.healthEndpoint || '/health';
+    const response = await fetch(`${service.url}${healthEndpoint}`, {
       signal: controller.signal,
       method: 'GET'
     });
