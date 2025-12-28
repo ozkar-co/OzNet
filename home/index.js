@@ -13,7 +13,8 @@ app.engine('handlebars', engine({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
   helpers: {
-    json: (context) => JSON.stringify(context, null, 2)
+    json: (context) => JSON.stringify(context, null, 2),
+    eq: (a, b) => a === b
   }
 }));
 app.set('view engine', 'handlebars');
