@@ -1,0 +1,24 @@
+{
+  "name": "oznet-home",
+  "version": "2.0.0",
+  "description": "OzNet Home - Infrastructure hub and service status dashboard",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["infrastructure", "dashboard", "cloudflare", "tunnel"],
+  "author": "Oz",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
