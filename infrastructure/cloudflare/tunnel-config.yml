@@ -12,7 +12,7 @@ credentials-file: /root/.cloudflared/<tunnel-id>.json
 # Ingress rules - route traffic from public domains to local services
 ingress:
   # Home/Hub service - main dashboard and service status
-  - hostname: home.oscar.co
+  - hostname: home.ozkar.co
     service: http://localhost:3000
   
   # Example: Add your external services here as they are deployed
@@ -23,16 +23,16 @@ ingress:
   #
   # Example entries (uncomment and configure as needed):
   #
-  # - hostname: files.oscar.co
+  # - hostname: files.ozkar.co
   #   service: http://localhost:3001
   #
-  # - hostname: wiki.oscar.co
+  # - hostname: wiki.ozkar.co
   #   service: http://localhost:3002
   #
-  # - hostname: 3dprint.oscar.co
+  # - hostname: 3dprint.ozkar.co
   #   service: http://localhost:5000
   #
-  # - hostname: mail.oscar.co
+  # - hostname: mail.ozkar.co
   #   service: http://localhost:8080
 
   # Catch-all rule (required) - returns 404 for unmatched requests

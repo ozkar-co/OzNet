@@ -54,7 +54,7 @@ cloudflared tunnel login
 cloudflared tunnel create oznet
 
 # Configure DNS (for each service)
-cloudflared tunnel route dns oznet home.oscar.co
+cloudflared tunnel route dns oznet home.ozkar.co
 ```
 
 ### 3. Configure Tunnel
@@ -65,7 +65,7 @@ Edit `infrastructure/cloudflare/tunnel-config.yml`:
 credentials-file: /root/.cloudflared/<your-tunnel-id>.json
 
 ingress:
-  - hostname: home.oscar.co
+  - hostname: home.ozkar.co
     service: http://localhost:3000
   - service: http_status:404
 
@@ -94,7 +94,7 @@ cloudflared tunnel --config infrastructure/cloudflare/tunnel-config.yml run
 
 ### 6. Access
 
-Visit `https://home.oscar.co` (or your configured domain)
+Visit `https://home.ozkar.co` (or your configured domain)
 
 ---
 
@@ -170,14 +170,14 @@ Edit `infrastructure/cloudflare/tunnel-config.yml`:
 
 ```yaml
 ingress:
-  - hostname: myservice.oscar.co
+  - hostname: myservice.ozkar.co
     service: http://localhost:3001
 ```
 
 ### 3. Configure DNS
 
 ```bash
-cloudflared tunnel route dns oznet myservice.oscar.co
+cloudflared tunnel route dns oznet myservice.ozkar.co
 ```
 
 ### 4. Update Home/Hub Monitoring

@@ -91,7 +91,7 @@ This document explains what was eliminated from OzNet and the reasoning behind e
 - `server.oznet` (172.26.0.2) - Main server
 
 **Why:**
-- Public services now use Cloudflare domains (e.g., `files.oscar.co`)
+- Public services now use Cloudflare domains (e.g., `files.ozkar.co`)
 - Internal DNS only for ZeroTier, VPN, and game servers
 - Simplified DNS management
 - Clear separation between public and private access
@@ -193,7 +193,7 @@ This document explains what was eliminated from OzNet and the reasoning behind e
 For users of the old system:
 
 1. **Public Services**
-   - Access via new Cloudflare domains (e.g., `home.oscar.co`)
+   - Access via new Cloudflare domains (e.g., `home.ozkar.co`)
    - No certificate installation needed
    - Bookmark new URLs
 

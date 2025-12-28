@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-1. A Cloudflare account with your domain (e.g., oscar.co)
+1. A Cloudflare account with your domain (e.g., ozkar.co)
 2. `cloudflared` installed on your server
 
 ## Installation
@@ -41,7 +41,7 @@ This creates a tunnel named "oznet" and generates credentials.
 For each service subdomain, add a CNAME record:
 
 ```bash
-cloudflared tunnel route dns oznet home.oscar.co
+cloudflared tunnel route dns oznet home.ozkar.co
 ```
 
 Or configure manually in Cloudflare dashboard:
@@ -90,12 +90,12 @@ When you deploy a new external service:
 1. Service runs on localhost:PORT
 2. Add entry to `tunnel-config.yml`:
    ```yaml
-   - hostname: myservice.oscar.co
+   - hostname: myservice.ozkar.co
      service: http://localhost:PORT
    ```
 3. Add DNS record (if not using wildcard):
    ```bash
-   cloudflared tunnel route dns oznet myservice.oscar.co
+   cloudflared tunnel route dns oznet myservice.ozkar.co
    ```
 4. Reload cloudflared:
    ```bash

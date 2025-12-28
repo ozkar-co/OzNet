@@ -156,7 +156,7 @@ This service is accessed via Cloudflare Tunnel:
 ```yaml
 # In infrastructure/cloudflare/tunnel-config.yml
 ingress:
-  - hostname: home.oscar.co
+  - hostname: home.ozkar.co
     service: http://localhost:3000
 ```
 

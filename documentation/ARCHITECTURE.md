@@ -68,7 +68,7 @@ OzNet is a **minimal infrastructure repository** designed to provide a clean fou
 
 1. **User Request**
    ```
-   https://home.oscar.co
+   https://home.ozkar.co
    ```
 
 2. **DNS Resolution**
@@ -151,7 +151,7 @@ All business services follow this pattern:
 4. **Cloudflare Tunnel Entry**
    ```yaml
    ingress:
-     - hostname: myservice.oscar.co
+     - hostname: myservice.ozkar.co
        service: http://localhost:PORT
    ```
 
@@ -185,10 +185,10 @@ app.get('/health', (req, res) => {
 
 ```yaml
 ingress:
-  - hostname: home.oscar.co
+  - hostname: home.ozkar.co
     service: http://localhost:3000
   
-  - hostname: files.oscar.co
+  - hostname: files.ozkar.co
     service: http://localhost:3001
   
   # Catch-all
@@ -269,7 +269,7 @@ const SERVICES = [
 
 4. **Configure DNS**
    ```bash
-   cloudflared tunnel route dns oznet myservice.oscar.co
+   cloudflared tunnel route dns oznet myservice.ozkar.co
    ```
 
 5. **Update Home/Hub**
@@ -277,7 +277,7 @@ const SERVICES = [
    - Restart home service
 
 6. **Verify**
-   - Check service at `https://myservice.oscar.co`
+   - Check service at `https://myservice.ozkar.co`
    - Verify status on Home/Hub dashboard
 
 ---
