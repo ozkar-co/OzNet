@@ -2,7 +2,7 @@
   "name": "oznet-infrastructure",
   "version": "2.0.0",
   "description": "OzNet - Simplified infrastructure with Cloudflare Tunnel",
-  "main": "home/index.js",
+  "main": "home/server.js",
   "scripts": {
     "start": "cd home && npm start",
     "dev": "cd home && npm run dev",

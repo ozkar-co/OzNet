@@ -108,7 +108,7 @@ OzNet/
 │   ├── ARCHITECTURE.md           # System design
 │   └── TRANSITION.md             # What changed from v1
 ├── home/
-│   ├── index.js                  # Home/Hub service
+│   ├── server.js                 # Home/Hub service
 │   ├── package.json
 │   └── views/                    # Web interface
 ├── infrastructure/
@@ -182,7 +182,7 @@ cloudflared tunnel route dns oznet myservice.ozkar.co
 
 ### 4. Update Home/Hub Monitoring
 
-Edit `home/index.js`:
+Edit `home/server.js`:
 
 ```javascript
 const SERVICES = [

@@ -85,7 +85,7 @@ Returns status of all configured services.
 
 ### Adding Services to Monitor
 
-Edit `index.js` and add to the `SERVICES` array:
+Edit `server.js` and add to the `SERVICES` array:
 
 ```javascript
 const SERVICES = [
@@ -116,7 +116,7 @@ app.get('/health', (req, res) => {
 
 ```
 home/
-├── index.js                    # Main Express application
+├── server.js                    # Main Express application
 ├── package.json                # Dependencies
 ├── views/
 │   ├── layouts/
@@ -186,7 +186,7 @@ Visit `http://localhost:3000`
 
 ### Adding Features
 
-1. Edit `index.js` for backend logic
+1. Edit `server.js` for backend logic
 2. Edit `views/index.handlebars` for UI
 3. Test locally
 4. No build step required
@@ -222,7 +222,7 @@ After=network.target
 Type=simple
 User=oznet
 WorkingDirectory=/opt/OzNet/home
-ExecStart=/usr/bin/node index.js
+ExecStart=/usr/bin/node server.js
 Restart=always
 Environment=NODE_ENV=production
 Environment=PORT=3000
@@ -246,7 +246,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
 EXPOSE 3000
-CMD ["node", "index.js"]
+CMD ["node", "server.js"]
 ```
 
 ## 📖 Documentation
