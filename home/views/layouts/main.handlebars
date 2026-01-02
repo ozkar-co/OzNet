@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <style>
+    :root {
+      --primary: #0066cc;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+    }
+    
+    .container {
+      max-width: 1200px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-up {
+      background-color: var(--success);
+      color: white;
+    }
+    
+    .status-down {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .card {
+      background-color: var(--card-background-color);
+      border: 1px solid var(--card-border-color);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .architecture-section {
+      margin-top: 3rem;
+    }
+    
+    pre {
+      background-color: var(--code-background-color);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      color: var(--muted-color);
+      padding: 2rem 0;
+      border-top: 1px solid var(--muted-border-color);
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    {{{body}}}
+  </main>
+  
+  <script>
+    // Auto-refresh service status every 30 seconds
+    setInterval(() => {
+      fetch('/api/services/status')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Service status updated:', data);
+          // You could update the page dynamically here
+        })
+        .catch(err => console.error('Failed to refresh status:', err));
+    }, 30000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+# Cloudflare Tunnel Configuration for OzNet
+# This file defines how public services are exposed through Cloudflare Tunnel
+#
+# Install cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/
+# Configure tunnel: cloudflared tunnel create oznet
+# Run tunnel: cloudflared tunnel --config infrastructure/cloudflare/tunnel-config.yml run
+
+# Tunnel credentials (keep secure)
+# Replace with your actual tunnel credentials file path
+credentials-file: /root/.cloudflared/<tunnel-id>.json
+
+# Ingress rules - route traffic from public domains to local services
+ingress:
+  # Home/Hub service - main dashboard and service status
+  - hostname: home.ozkar.co
+    service: http://localhost:3000
+  
+  # OctoPrint - 3D printer management
+  - hostname: 3dprint.ozkar.co
+    service: http://localhost:5000
+  
+  # Example: Add your external services here as they are deployed
+  # Each service should:
+  # 1. Run in its own repository
+  # 2. Listen on a unique localhost port
+  # 3. Implement a /health endpoint
+  #
+  # Example entries (uncomment and configure as needed):
+  #
+  # - hostname: files.ozkar.co
+  #   service: http://localhost:3001
+  #
+  # - hostname: wiki.ozkar.co
+  #   service: http://localhost:3002
+  #
+  # - hostname: mail.ozkar.co
+  #   service: http://localhost:8080
+
+  # Catch-all rule (required) - returns 404 for unmatched requests
+  - service: http_status:404
+
+# Tunnel settings
+tunnel: oznet
+logfile: /var/log/cloudflared.log
+
+# Optional: Metrics and health check
+metrics: localhost:2000
+
+# Optional: Origin request configuration
+# Uncomment to customize timeout, keep-alive, etc.
+# originRequest:
+#   connectTimeout: 30s
+#   noTLSVerify: false
+#   keepAliveConnections: 100
+#   keepAliveTimeout: 90s

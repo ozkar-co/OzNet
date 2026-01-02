@@ -1,259 +1,370 @@
-# OzNet - Red Privada
+# OzNet - Infrastructure Repository
 
-OzNet es una red privada basada en ZeroTier que proporciona múltiples servicios web a través de un dominio personalizado `.oznet`.
+> Simplified, decoupled infrastructure for personal services using Cloudflare Tunnel
 
-## 🏗️ Arquitectura
+---
 
-### Componentes Principales
+## 🎯 What is OzNet?
 
-- **ZeroTier VPN**: Conectividad segura entre dispositivos
-- **DNS (dnsmasq)**: Resolución de nombres para servicios internos
-- **Express.js**: Servidor web con virtual hosts
-- **Nginx**: Proxy reverso y SSL termination
-- **Handlebars**: Motor de plantillas
-- **PicoCSS**: Framework CSS minimalista
+OzNet is a **minimal infrastructure repository** that provides:
 
-### Servicios Disponibles
+1. **Cloudflare Tunnel** - Secure public access to services
+2. **Internal DNS** - For ZeroTier, VPN, and game servers  
+3. **Home/Hub** - Service status dashboard and documentation
 
-| Servicio | Dominio | Descripción | Estado |
-|----------|---------|-------------|--------|
-| home.oznet | Documentación principal | ✅ Activo |
-| hub.oznet | Gestión de servicios | ✅ Activo |
-| files.oznet | Servidor de archivos | ✅ Activo |
-| server.oznet | Servidor principal | ✅ Activo |
-| mail.oznet | Interfaz web de correo | 🚧 Próximamente |
-| wiki.oznet | Servidor Kiwix | 🚧 Próximamente |
-| 3dprint.oznet | OctoPrint | 🚧 Próximamente |
+**Important**: This repository does **NOT** contain business services. All services live in separate, independent repositories.
 
-## 🚀 Instalación
+---
 
-### Requisitos Previos
+## ✨ Features
 
-- Node.js 18+ 
-- ZeroTier One
-- dnsmasq
-- Nginx (opcional para producción)
+- ✅ **No Nginx** - Cloudflare Tunnel handles reverse proxy
+- ✅ **No SSL Management** - Cloudflare manages certificates  
+- ✅ **No Coupled Services** - Each service is independent
+- ✅ **Declarative Config** - YAML-based tunnel configuration
+- ✅ **Health Monitoring** - Track service status from Home/Hub
+- ✅ **Minimal DNS** - Only for internal/VPN access
+- ✅ **Zero Open Ports** - Everything through Cloudflare Tunnel
 
-### 1. Clonar el Repositorio
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- Cloudflare account with a domain
+- (Optional) ZeroTier for internal access
+
+### 1. Install Cloudflare Tunnel
 
 ```bash
-git clone <repository-url>
-cd OzNet
+# Ubuntu/Debian
+wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared-linux-amd64.deb
 ```
 
-### 2. Instalar Dependencias
+### 2. Setup Cloudflare Tunnel
 
 ```bash
+# Authenticate
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create oznet
+
+# Configure DNS (for each service)
+cloudflared tunnel route dns oznet home.ozkar.co
+```
+
+### 3. Configure Tunnel
+
+Edit `infrastructure/cloudflare/tunnel-config.yml`:
+
+```yaml
+credentials-file: /root/.cloudflared/<your-tunnel-id>.json
+
+ingress:
+  - hostname: home.ozkar.co
+    service: http://localhost:3000
+  - service: http_status:404
+
+tunnel: oznet
+```
+
+See [infrastructure/cloudflare/README.md](infrastructure/cloudflare/README.md) for details.
+
+### 4. Install Home/Hub Service
+
+```bash
+cd home
 npm install
 ```
 
-### 3. Configurar Variables de Entorno
-
-Crear un archivo `.env`:
-
-```env
-PORT=3000
-FILES_ROOT=/var/oznet/files
-NODE_ENV=production
-```
-
-### 4. Configurar ZeroTier
-
-1. Instalar ZeroTier One
-2. Unirse a la red: `9bee8941b563441a`
-3. Configurar DNS: `172.26.0.1`
-
-### 5. Configurar DNS
-
-Editar `/etc/dnsmasq.d/oznet.conf`:
-
-```
-# Dominio personalizado
-domain=oznet
-
-# Entradas personalizadas
-address=/home.oznet/172.26.0.1
-address=/hub.oznet/172.26.0.1
-address=/files.oznet/172.26.0.1
-address=/server.oznet/172.26.0.1
-
-# Asegura que escuche en la interfaz ZeroTier
-interface=zt+
-listen-address=172.26.0.1
-```
-
-### 6. Ejecutar el Servidor
+### 5. Start Services
 
 ```bash
-# Desarrollo
-npm run dev
-
-# Producción
+# Start Home/Hub
+cd home
 npm start
+
+# In another terminal, start Cloudflare Tunnel
+cloudflared tunnel --config infrastructure/cloudflare/tunnel-config.yml run
 ```
 
-## 📁 Estructura del Proyecto
+### 6. Access
+
+Visit `https://home.ozkar.co` (or your configured domain)
+
+---
+
+## 📁 Repository Structure
 
 ```
 OzNet/
-├── server.js              # Servidor principal
-├── package.json           # Dependencias
-├── apps/                  # Aplicaciones por servicio
-│   ├── home/             # home.oznet
-│   ├── hub/              # hub.oznet
-│   └── files/            # files.oznet
-├── config/               # Configuraciones
-├── logs/                 # Logs del sistema
-└── docs/                 # Documentación
+├── config/
+│   └── dnsmasq.conf              # Minimal DNS (ZeroTier/VPN only)
+├── documentation/
+│   ├── ARCHITECTURE.md           # System design
+│   └── TRANSITION.md             # What changed from v1
+├── home/
+│   ├── server.js                 # Home/Hub service
+│   ├── package.json
+│   └── views/                    # Web interface
+├── infrastructure/
+│   ├── cloudflare/
+│   │   ├── tunnel-config.yml    # Tunnel routing config
+│   │   └── README.md            # Setup guide
+│   └── scripts/
+│       ├── cleanup-dns.sh       # Remove old DNS entries
+│       ├── cleanup-nginx.sh     # Remove Nginx config
+│       └── cleanup-ssl.sh       # Remove SSL infrastructure
+└── README.md                     # This file
 ```
 
-## 🔧 Configuración de Servicios
+---
 
-### home.oznet
-- Documentación principal del proyecto
-- Guías de configuración
-- Estado de servicios
+## 🏗️ Architecture
 
-### hub.oznet
-- Gestión de servicios del sistema
-- Monitoreo de procesos
-- Logs del sistema
-- Métricas de rendimiento
+### Public Access Model
 
-### files.oznet
-- Servidor de archivos público
-- Navegación de directorios
-- Vista previa de archivos
-- Descarga de archivos
-- Límite: 100MB por archivo
+```
+Internet → Cloudflare (TLS) → Tunnel → localhost:PORT → Service
+```
 
-### server.oznet
-- Servidor principal de OzNet
-- Punto de entrada central
-- Redirección a servicios
+- All TLS handled by Cloudflare
+- Services listen on localhost only
+- No ports exposed to internet
+- Each service has its own subdomain
 
-## 🔒 Seguridad
+### Internal Access Model
 
-### ZeroTier
-- Red privada con autenticación
-- Encriptación punto a punto
-- Control de acceso por dispositivo
+Via ZeroTier VPN:
+- `172.26.0.1` → `home.oznet` (Home/Hub)
+- `172.26.0.2` → `server.oznet` (Main server)
 
-### DNS
-- Resolución interna para `.oznet`
-- No expuesto a Internet
-- Configuración local
+**Use for**: VPN access, game servers, internal tools  
+**NOT for**: Public HTTP services (use Cloudflare instead)
 
-### Web Server
-- Validación de rutas
-- Límites de tamaño de archivo
-- Headers de seguridad (Helmet)
-- Compresión de respuesta
+---
 
-## 📊 Monitoreo
+## 📊 Adding a Service
 
-### Métricas Disponibles
-- Uso de CPU y memoria
-- Espacio en disco
-- Estado de servicios
-- Logs de acceso
+### 1. Create Service (External Repo)
 
-### Logs
-- `/var/log/oznet/` - Logs de aplicación
-- `/var/log/syslog` - Logs del sistema
-- `/var/log/nginx/` - Logs de Nginx
+Your service should:
+- Run on `localhost:PORT`
+- Implement `GET /health` endpoint (returns 200 when healthy)
+- Be in its own repository
 
-## 🛠️ Desarrollo
+Example:
+```javascript
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP' });
+});
+```
 
-### Scripts Disponibles
+### 2. Add to Tunnel Config
+
+Edit `infrastructure/cloudflare/tunnel-config.yml`:
+
+```yaml
+ingress:
+  - hostname: myservice.ozkar.co
+    service: http://localhost:3001
+```
+
+### 3. Configure DNS
 
 ```bash
-npm start          # Ejecutar en producción
-npm run dev        # Ejecutar en desarrollo
-npm test           # Ejecutar tests
+cloudflared tunnel route dns oznet myservice.ozkar.co
 ```
 
-### Agregar Nuevo Servicio
+### 4. Update Home/Hub Monitoring
 
-1. Crear directorio en `apps/`
-2. Implementar aplicación Express
-3. Agregar virtual host en `server.js`
-4. Configurar DNS y Nginx
-
-### Estructura de una Aplicación
+Edit `home/server.js`:
 
 ```javascript
-// apps/mi-servicio/index.js
-const express = require('express');
-const exphbs = require('express-handlebars');
-
-const app = express();
-
-// Configurar Handlebars
-app.engine('handlebars', exphbs.engine({
-  defaultLayout: 'main',
-  layoutsDir: path.join(__dirname, 'views/layouts')
-}));
-app.set('view engine', 'handlebars');
-app.set('views', path.join(__dirname, 'views'));
-
-// Rutas
-app.get('/', (req, res) => {
-  res.render('home', { title: 'Mi Servicio' });
-});
-
-module.exports = app;
+const SERVICES = [
+  {
+    name: 'My Service',
+    url: 'http://localhost:3001',
+    description: 'Service description',
+    external: true
+  }
+];
 ```
 
-## 🌐 Configuración de Red
+### 5. Restart Services
 
-### ZeroTier Network
-- **Network ID**: `9bee8941b563441a`
-- **Nombre**: Oz Network
-- **Rango IP**: `172.26.0.0/24`
+```bash
+systemctl restart cloudflared
+systemctl restart oznet-home
+```
 
-### DNS Configuration
-- **Servidor**: `172.26.0.1`
-- **Dominio**: `.oznet`
-- **Servicios**: Todos los subdominios
+---
 
-### Puertos
-- **53**: DNS (dnsmasq)
-- **3000**: Web Server (Express)
-- **9993**: ZeroTier
+## 🔧 Configuration
 
-## 📝 Licencia
+### Cloudflare Tunnel
 
-MIT License - Ver archivo LICENSE para detalles.
+Main config: `infrastructure/cloudflare/tunnel-config.yml`
 
-## 🤝 Contribuir
+Key sections:
+- `credentials-file`: Path to tunnel credentials
+- `ingress`: Routing rules (hostname → localhost:port)
+- `tunnel`: Tunnel name
 
-1. Fork el proyecto
-2. Crear rama para feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+### Internal DNS
 
-## 📞 Soporte
+Main config: `config/dnsmasq.conf`
 
-Para soporte técnico o preguntas:
-- Crear un issue en GitHub
-- Contactar al administrador de la red
+Only includes:
+- `home.oznet` → 172.26.0.1
+- `server.oznet` → 172.26.0.2
 
-## 🔄 Actualizaciones
+For ZeroTier/VPN/game servers only.
 
-### v1.0.0
-- ✅ Servidor principal con virtual hosts
-- ✅ home.oznet - Documentación
-- ✅ hub.oznet - Gestión de servicios
-- ✅ files.oznet - Servidor de archivos
-- ✅ server.oznet - Servidor principal
-- ✅ Integración con ZeroTier
-- ✅ Configuración DNS automática
+---
 
-### Próximas Versiones
-- 🚧 mail.oznet - Servidor de correo
-- 🚧 wiki.oznet - Kiwix server
-- 🚧 3dprint.oznet - OctoPrint
-- 🚧 SSL automático
-- 🚧 Backup automático 
+## 🔐 Security
+
+### Public Services
+- **TLS**: Cloudflare-managed, trusted certificates
+- **DDoS**: Cloudflare protection included
+- **WAF**: Available through Cloudflare
+- **Exposure**: No direct port exposure
+- **Isolation**: Services on localhost only
+
+### Internal Services  
+- **Network**: ZeroTier encrypted VPN
+- **Access**: Controlled by ZeroTier ACLs
+- **DNS**: Internal resolution only
+
+---
+
+## 📖 Documentation
+
+- [ARCHITECTURE.md](documentation/ARCHITECTURE.md) - Detailed system design
+- [TRANSITION.md](documentation/TRANSITION.md) - Migration from v1
+- [Cloudflare Setup](infrastructure/cloudflare/README.md) - Tunnel configuration
+
+---
+
+## 🧹 Migrating from v1
+
+If you're upgrading from the old architecture:
+
+### Run Cleanup Scripts
+
+```bash
+# Remove Nginx configuration
+sudo infrastructure/scripts/cleanup-nginx.sh
+
+# Remove SSL infrastructure
+sudo infrastructure/scripts/cleanup-ssl.sh
+
+# Trim DNS to essentials
+sudo infrastructure/scripts/cleanup-dns.sh
+```
+
+### Update Access
+
+- Public services: Access via new Cloudflare domains
+- Internal services: Still available via ZeroTier
+- No certificate installation needed
+
+See [TRANSITION.md](documentation/TRANSITION.md) for full details.
+
+---
+
+## 🛠️ Development
+
+### Run Home/Hub Locally
+
+```bash
+cd home
+npm install
+npm run dev  # Hot reload with nodemon
+```
+
+Access at `http://localhost:3000`
+
+### Test Tunnel Config
+
+```bash
+cloudflared tunnel --config infrastructure/cloudflare/tunnel-config.yml run
+```
+
+---
+
+## 🎯 Design Principles
+
+1. **Minimal Infrastructure** - Only essential components
+2. **Separation of Concerns** - Infrastructure ≠ Services  
+3. **Declarative Configuration** - YAML over scripts
+4. **No Local Complexity** - Leverage Cloudflare
+5. **Ready to Scale** - Add services without core changes
+
+---
+
+## 📝 Service Requirements
+
+All external services must:
+
+1. ✅ Run on `localhost:PORT`
+2. ✅ Implement `/health` endpoint
+3. ✅ Live in separate repository
+4. ✅ Have independent deployment
+5. ✅ Return HTTP 200 on `/health` when healthy
+
+---
+
+## ❓ FAQ
+
+**Q: Where are the actual services?**  
+A: In separate repositories. This is infrastructure only.
+
+**Q: Why not use Nginx?**  
+A: Cloudflare Tunnel replaces it. No need for local reverse proxy.
+
+**Q: Do I need SSL certificates?**  
+A: No. Cloudflare handles all TLS with trusted certificates.
+
+**Q: Can I use path-based routing?**  
+A: No. Each service gets its own subdomain. Cleaner and more flexible.
+
+**Q: What about databases?**  
+A: Deploy them with the services that need them, not here.
+
+---
+
+## 🤝 Contributing
+
+This is a personal infrastructure repository, but suggestions are welcome:
+
+1. Open an issue for discussion
+2. Keep changes minimal and focused
+3. Follow existing architecture principles
+
+---
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+---
+
+## 🔗 Links
+
+- [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+- [ZeroTier](https://www.zerotier.com/)
+- [Express.js](https://expressjs.com/)
+
+---
+
+**Version**: 2.0.0  
+**Last Updated**: December 2024
+
+> Built with simplicity in mind. Ready to grow without technical debt.
+ 

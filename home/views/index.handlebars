@@ -1,0 +1,122 @@
+<div class="header">
+  <h1>🏠 OzNet Infrastructure Hub</h1>
+  <p>Simplified infrastructure with Cloudflare Tunnel</p>
+</div>
+
+<section class="card">
+  <h2>📋 What is OzNet?</h2>
+  <p>
+    OzNet is a <strong>minimal infrastructure repository</strong> that provides:
+  </p>
+  <ul>
+    <li><strong>Cloudflare Tunnel</strong> for secure public access to services</li>
+    <li><strong>Internal DNS</strong> for ZeroTier, VPN, and game servers</li>
+    <li><strong>This Hub</strong> for monitoring and documentation</li>
+  </ul>
+  <p>
+    <em>All business services live in separate, independent repositories.</em>
+  </p>
+</section>
+
+<section class="card">
+  <h2>🏗️ Architecture</h2>
+  
+  <h3>Public Access Model</h3>
+  <p>All public services use Cloudflare Tunnel:</p>
+  <pre>Internet → Cloudflare (TLS) → Tunnel → localhost:PORT → Service</pre>
+  
+  <ul>
+    <li>✅ Cloudflare handles all TLS/SSL termination</li>
+    <li>✅ No ports exposed directly to internet</li>
+    <li>✅ DDoS protection and WAF included</li>
+    <li>✅ Each service listens on localhost only</li>
+    <li>✅ Each service has its own subdomain</li>
+  </ul>
+  
+  <h3>Internal Access Model</h3>
+  <p>Private network access via ZeroTier:</p>
+  <ul>
+    <li>172.26.0.1 → home.oznet (this hub)</li>
+    <li>172.26.0.2 → server.oznet (main server)</li>
+  </ul>
+  <p><em>For VPN, game servers, and internal tools only - no public HTTP services.</em></p>
+</section>
+
+<section>
+  <h2>📊 Service Status</h2>
+  <p>Current status of known services:</p>
+  
+  {{#if services}}
+    <div class="service-grid">
+      {{#each services}}
+        <div class="card">
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          <p>
+            <strong>Status:</strong> 
+            <span class="status-badge {{#if (eq status 'UP')}}status-up{{else}}status-down{{/if}}">
+              {{status}}
+            </span>
+          </p>
+          {{#if external}}
+            <p><small><em>External repository</em></small></p>
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p><em>No services configured yet. Add them to the SERVICES array in index.js</em></p>
+  {{/if}}
+</section>
+
+<section class="architecture-section card">
+  <h2>🎯 Service Organization</h2>
+  
+  <h3>How Services Work</h3>
+  <ol>
+    <li><strong>Each service is independent</strong>
+      <ul>
+        <li>Lives in its own repository</li>
+        <li>Has its own deployment pipeline</li>
+        <li>Runs on a unique localhost port</li>
+      </ul>
+    </li>
+    <li><strong>Services implement /health endpoint</strong>
+      <ul>
+        <li>Returns HTTP 200 when healthy</li>
+        <li>This hub monitors all services</li>
+      </ul>
+    </li>
+    <li><strong>Public access via Cloudflare Tunnel</strong>
+      <ul>
+        <li>Configure in <code>infrastructure/cloudflare/tunnel-config.yml</code></li>
+        <li>Each service gets its own subdomain</li>
+        <li>Cloudflare handles SSL automatically</li>
+      </ul>
+    </li>
+  </ol>
+  
+  <h3>Planned Services</h3>
+  <ul>
+    <li>📁 Files Server (file sharing)</li>
+    <li>📚 Wiki Server (knowledge base)</li>
+    <li>🖨️ OctoPrint (3D printing)</li>
+    <li>📧 Mail Interface (webmail)</li>
+    <li><em>Add your services here...</em></li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>📖 Documentation</h2>
+  <ul>
+    <li><a href="https://github.com/ozkar-co/OzNet/blob/main/README.md">README.md</a> - Getting started</li>
+    <li><a href="https://github.com/ozkar-co/OzNet/blob/main/documentation/ARCHITECTURE.md">ARCHITECTURE.md</a> - System design</li>
+    <li><a href="https://github.com/ozkar-co/OzNet/blob/main/documentation/TRANSITION.md">TRANSITION.md</a> - Migration details</li>
+    <li><a href="https://github.com/ozkar-co/OzNet/blob/main/infrastructure/cloudflare/README.md">Cloudflare Setup</a> - Tunnel configuration</li>
+  </ul>
+</section>
+
+<footer>
+  <p>OzNet Infrastructure Hub v2.0</p>
+  <p>Simplified, decoupled, ready to scale</p>
+</footer>
