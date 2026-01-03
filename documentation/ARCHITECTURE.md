@@ -225,7 +225,7 @@ address=/server.oznet/172.26.0.2
 The Home/Hub service monitors all configured services:
 
 ```javascript
-// In home/server.js
+// In server.js
 const SERVICES = [
   {
     name: 'My Service',
@@ -273,7 +273,7 @@ const SERVICES = [
    ```
 
 5. **Update Home/Hub**
-   - Add service to `SERVICES` array in `home/server.js`
+   - Add service to `SERVICES` array in `server.js`
    - Restart home service
 
 6. **Verify**
@@ -349,10 +349,6 @@ OzNet/
 ├── documentation/
 │   ├── ARCHITECTURE.md       # This file
 │   └── TRANSITION.md         # What changed
-├── home/
-│   ├── server.js             # Home/Hub service
-│   ├── package.json
-│   └── views/                # Templates
 ├── infrastructure/
 │   ├── cloudflare/
 │   │   ├── tunnel-config.yml # Tunnel routing
@@ -361,6 +357,9 @@ OzNet/
 │       ├── cleanup-dns.sh
 │       ├── cleanup-nginx.sh
 │       └── cleanup-ssl.sh
+├── views/                    # Templates
+├── server.js                 # Home/Hub service
+├── package.json              # Dependencies
 └── README.md                 # Getting started
 ```
 
