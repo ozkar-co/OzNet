@@ -50,7 +50,7 @@ const SERVICES = [
     healthEndpoint: '/', // OctoPrint doesn't have /health, use root
     description: '3D printer management',
     external: true
-  }
+  },
   // Example: Add external services like this
   // {
   //   name: 'Files Server',
