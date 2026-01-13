@@ -74,10 +74,9 @@ tunnel: oznet
 
 See [infrastructure/cloudflare/README.md](infrastructure/cloudflare/README.md) for details.
 
-### 4. Install Home/Hub Service
+### 4. Install Dependencies
 
 ```bash
-cd home
 npm install
 ```
 
@@ -85,7 +84,6 @@ npm install
 
 ```bash
 # Start Home/Hub
-cd home
 npm start
 
 # In another terminal, start Cloudflare Tunnel
@@ -107,10 +105,6 @@ OzNet/
 ├── documentation/
 │   ├── ARCHITECTURE.md           # System design
 │   └── TRANSITION.md             # What changed from v1
-├── home/
-│   ├── server.js                 # Home/Hub service
-│   ├── package.json
-│   └── views/                    # Web interface
 ├── infrastructure/
 │   ├── cloudflare/
 │   │   ├── tunnel-config.yml    # Tunnel routing config
@@ -119,6 +113,9 @@ OzNet/
 │       ├── cleanup-dns.sh       # Remove old DNS entries
 │       ├── cleanup-nginx.sh     # Remove Nginx config
 │       └── cleanup-ssl.sh       # Remove SSL infrastructure
+├── views/                        # Web interface templates
+├── server.js                     # Home/Hub service
+├── package.json                  # Dependencies and scripts
 └── README.md                     # This file
 ```
 
@@ -182,7 +179,7 @@ cloudflared tunnel route dns oznet myservice.ozkar.co
 
 ### 4. Update Home/Hub Monitoring
 
-Edit `home/server.js`:
+Edit `server.js`:
 
 ```javascript
 const SERVICES = [
@@ -283,7 +280,6 @@ See [TRANSITION.md](documentation/TRANSITION.md) for full details.
 ### Run Home/Hub Locally
 
 ```bash
-cd home
 npm install
 npm run dev  # Hot reload with nodemon
 ```
