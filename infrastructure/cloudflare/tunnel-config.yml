@@ -7,7 +7,7 @@
 
 # Tunnel credentials (keep secure)
 # Replace with your actual tunnel credentials file path
-credentials-file: /root/.cloudflared/<tunnel-id>.json
+credentials-file: /home/oz/.cloudflared/3f173dbb-02a2-450c-a456-4d22a092644e.json
 
 # Ingress rules - route traffic from public domains to local services
 ingress:
@@ -41,7 +41,7 @@ ingress:
 
 # Tunnel settings
 tunnel: oznet
-logfile: /var/log/cloudflared.log
+logfile: /home/oz/log/cloudflared.log
 
 # Optional: Metrics and health check
 metrics: localhost:2000
