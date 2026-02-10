@@ -19,6 +19,20 @@ ingress:
   - hostname: 3dprint.ozkar.co
     service: http://localhost:5000
   
+  # OzRo API - Custom Ragnarok Server API
+  - hostname: ozro-api.ozkar.co
+    service: http://localhost:3001
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: localhost
+      
+  # Meye API
+  - hostname: meye-api.ozkar.co
+    service: http://localhost:3002
+    originRequest:
+      noTLSVerify: true
+      httpHostHeader: localhost
+
   # Example: Add your external services here as they are deployed
   # Each service should:
   # 1. Run in its own repository
