@@ -7,61 +7,44 @@
 
 # Tunnel credentials (keep secure)
 # Replace with your actual tunnel credentials file path
-credentials-file: /home/oz/.cloudflared/3f173dbb-02a2-450c-a456-4d22a092644e.json
+credentials-file: /home/oz/.cloudflared/c91360d5-d1e4-4856-8ef9-baad45962f23.json
 
 # Ingress rules - route traffic from public domains to local services
 ingress:
   # Home/Hub service - main dashboard and service status
-  - hostname: home.ozkar.co
+  - hostname: home.ozkr.net
     service: http://localhost:3000
   
   # OctoPrint - 3D printer management
-  - hostname: 3dprint.ozkar.co
+  - hostname: 3dprint.ozkr.net
     service: http://localhost:5000
   
   # OzRo API - Custom Ragnarok Server API
-  - hostname: ozro-api.ozkar.co
+  - hostname: ozro-api.ozkr.net
     service: http://localhost:3001
     originRequest:
       noTLSVerify: true
       httpHostHeader: localhost
       
   # Meye API
-  - hostname: meye-api.ozkar.co
+  - hostname: meye-api.ozkr.net
     service: http://localhost:3002
     originRequest:
       noTLSVerify: true
       httpHostHeader: localhost
 
   # Whisper - Audio translation
-  - hostname: whisper.ozkar.co
-    service: http://172.26.0.2:8001
+  - hostname: whisper.ozkr.net
+    service: http://localhost:8001
 
-  - hostname: lolchaos.ozkar.co
+  - hostname: lolchaos.ozkr.net
     service: http://localhost:3003
-
-  # Example: Add your external services here as they are deployed
-  # Each service should:
-  # 1. Run in its own repository
-  # 2. Listen on a unique localhost port
-  # 3. Implement a /health endpoint
-  #
-  # Example entries (uncomment and configure as needed):
-  #
-  # - hostname: files.ozkar.co
-  #   service: http://localhost:3001
-  #
-  # - hostname: wiki.ozkar.co
-  #   service: http://localhost:3002
-  #
-  # - hostname: mail.ozkar.co
-  #   service: http://localhost:8080
 
   # Catch-all rule (required) - returns 404 for unmatched requests
   - service: http_status:404
 
 # Tunnel settings
-tunnel: oznet
+tunnel: ozkrnet
 logfile: /home/oz/log/cloudflared.log
 
 # Optional: Metrics and health check
