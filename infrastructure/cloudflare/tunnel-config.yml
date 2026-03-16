@@ -33,6 +33,13 @@ ingress:
       noTLSVerify: true
       httpHostHeader: localhost
 
+  # Whisper - Audio translation
+  - hostname: whisper.ozkar.co
+    service: http://172.26.0.2:8001
+
+  - hostname: lolchaos.ozkar.co
+    service: http://localhost:3003
+
   # Example: Add your external services here as they are deployed
   # Each service should:
   # 1. Run in its own repository
