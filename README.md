@@ -9,8 +9,7 @@
 OzNet is a **minimal infrastructure repository** that provides:
 
 1. **Cloudflare Tunnel** - Secure public access to services
-2. **Internal DNS** - For ZeroTier, VPN, and game servers  
-3. **Home/Hub** - Service status dashboard and documentation
+2. **Home/Hub** - Service status dashboard and documentation
 
 **Important**: This repository does **NOT** contain business services. All services live in separate, independent repositories.
 
@@ -23,7 +22,6 @@ OzNet is a **minimal infrastructure repository** that provides:
 - ✅ **No Coupled Services** - Each service is independent
 - ✅ **Declarative Config** - YAML-based tunnel configuration
 - ✅ **Health Monitoring** - Track service status from Home/Hub
-- ✅ **Minimal DNS** - Only for internal/VPN access
 - ✅ **Zero Open Ports** - Everything through Cloudflare Tunnel
 
 ---
@@ -34,7 +32,6 @@ OzNet is a **minimal infrastructure repository** that provides:
 
 - Node.js 18+
 - Cloudflare account with a domain
-- (Optional) ZeroTier for internal access
 
 ### 1. Install Cloudflare Tunnel
 
@@ -52,9 +49,6 @@ cloudflared tunnel login
 
 # Create tunnel
 cloudflared tunnel create oznet
-
-# Configure DNS (for each service)
-cloudflared tunnel route dns oznet home.ozkar.co
 ```
 
 ### 3. Configure Tunnel
@@ -84,7 +78,7 @@ npm install
 
 ```bash
 # Start Home/Hub
-npm start
+./run.sh
 
 # In another terminal, start Cloudflare Tunnel
 cloudflared tunnel --config infrastructure/cloudflare/tunnel-config.yml run
@@ -100,21 +94,15 @@ Visit `https://home.ozkar.co` (or your configured domain)
 
 ```
 OzNet/
-├── config/
-│   └── dnsmasq.conf              # Minimal DNS (ZeroTier/VPN only)
 ├── documentation/
-│   ├── ARCHITECTURE.md           # System design
-│   └── TRANSITION.md             # What changed from v1
+│   └── ARCHITECTURE.md           # System design
 ├── infrastructure/
-│   ├── cloudflare/
-│   │   ├── tunnel-config.yml    # Tunnel routing config
-│   │   └── README.md            # Setup guide
-│   └── scripts/
-│       ├── cleanup-dns.sh       # Remove old DNS entries
-│       ├── cleanup-nginx.sh     # Remove Nginx config
-│       └── cleanup-ssl.sh       # Remove SSL infrastructure
+│   └── cloudflare/
+│       ├── tunnel-config.yml    # Tunnel routing config (source of truth for services)
+│       └── README.md            # Setup guide
 ├── views/                        # Web interface templates
 ├── server.js                     # Home/Hub service
+├── run.sh                        # Startup script
 ├── package.json                  # Dependencies and scripts
 └── README.md                     # This file
 ```
@@ -133,15 +121,6 @@ Internet → Cloudflare (TLS) → Tunnel → localhost:PORT → Service
 - Services listen on localhost only
 - No ports exposed to internet
 - Each service has its own subdomain
-
-### Internal Access Model
-
-Via ZeroTier VPN:
-- `172.26.0.1` → `home.oznet` (Home/Hub)
-- `172.26.0.2` → `server.oznet` (Main server)
-
-**Use for**: VPN access, game servers, internal tools  
-**NOT for**: Public HTTP services (use Cloudflare instead)
 
 ---
 
@@ -171,28 +150,9 @@ ingress:
     service: http://localhost:3001
 ```
 
-### 3. Configure DNS
+The service will automatically appear in the Home/Hub dashboard.
 
-```bash
-cloudflared tunnel route dns oznet myservice.ozkar.co
-```
-
-### 4. Update Home/Hub Monitoring
-
-Edit `server.js`:
-
-```javascript
-const SERVICES = [
-  {
-    name: 'My Service',
-    url: 'http://localhost:3001',
-    description: 'Service description',
-    external: true
-  }
-];
-```
-
-### 5. Restart Services
+### 3. Restart Services
 
 ```bash
 systemctl restart cloudflared
@@ -212,15 +172,7 @@ Key sections:
 - `ingress`: Routing rules (hostname → localhost:port)
 - `tunnel`: Tunnel name
 
-### Internal DNS
-
-Main config: `config/dnsmasq.conf`
-
-Only includes:
-- `home.oznet` → 172.26.0.1
-- `server.oznet` → 172.26.0.2
-
-For ZeroTier/VPN/game servers only.
+Services defined here are automatically loaded into the dashboard.
 
 ---
 
@@ -233,45 +185,12 @@ For ZeroTier/VPN/game servers only.
 - **Exposure**: No direct port exposure
 - **Isolation**: Services on localhost only
 
-### Internal Services  
-- **Network**: ZeroTier encrypted VPN
-- **Access**: Controlled by ZeroTier ACLs
-- **DNS**: Internal resolution only
-
 ---
 
 ## 📖 Documentation
 
 - [ARCHITECTURE.md](documentation/ARCHITECTURE.md) - Detailed system design
-- [TRANSITION.md](documentation/TRANSITION.md) - Migration from v1
 - [Cloudflare Setup](infrastructure/cloudflare/README.md) - Tunnel configuration
-
----
-
-## 🧹 Migrating from v1
-
-If you're upgrading from the old architecture:
-
-### Run Cleanup Scripts
-
-```bash
-# Remove Nginx configuration
-sudo infrastructure/scripts/cleanup-nginx.sh
-
-# Remove SSL infrastructure
-sudo infrastructure/scripts/cleanup-ssl.sh
-
-# Trim DNS to essentials
-sudo infrastructure/scripts/cleanup-dns.sh
-```
-
-### Update Access
-
-- Public services: Access via new Cloudflare domains
-- Internal services: Still available via ZeroTier
-- No certificate installation needed
-
-See [TRANSITION.md](documentation/TRANSITION.md) for full details.
 
 ---
 
@@ -333,6 +252,9 @@ A: No. Each service gets its own subdomain. Cleaner and more flexible.
 **Q: What about databases?**  
 A: Deploy them with the services that need them, not here.
 
+**Q: How do I add a service to the dashboard?**  
+A: Just add it to `infrastructure/cloudflare/tunnel-config.yml`. The dashboard loads services automatically from that file.
+
 ---
 
 ## 🤝 Contributing
@@ -354,13 +276,12 @@ MIT License - See LICENSE file for details
 ## 🔗 Links
 
 - [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
-- [ZeroTier](https://www.zerotier.com/)
 - [Express.js](https://expressjs.com/)
 
 ---
 
 **Version**: 2.0.0  
-**Last Updated**: December 2024
+**Last Updated**: March 2026
 
 > Built with simplicity in mind. Ready to grow without technical debt.
  

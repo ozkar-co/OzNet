@@ -15,13 +15,7 @@ OzNet is a **minimal infrastructure repository** designed to provide a clean fou
    - TLS/SSL termination (managed by Cloudflare)
    - DDoS protection and WAF
 
-2. **Minimal Internal DNS**
-   - For ZeroTier network only
-   - For VPN access only
-   - For game servers only
-   - **NOT for public HTTP services**
-
-3. **Home/Hub Service**
+2. **Home/Hub Service**
    - Central documentation
    - Service status monitoring
    - Architecture explanation
@@ -56,8 +50,8 @@ OzNet is a **minimal infrastructure repository** designed to provide a clean fou
          │               │               │
          ▼               ▼               ▼
     ┌─────────┐   ┌──────────┐    ┌──────────┐
-    │  Home   │   │  Files   │    │OctoPrint │
-    │  Hub    │   │  Server  │    │          │
+    │  Home   │   │  Service │    │  Service │
+    │  Hub    │   │  (ext.)  │    │  (ext.)  │
     └─────────┘   └──────────┘    └──────────┘
     (This repo)   (External repo) (External repo)
 ```
@@ -71,20 +65,16 @@ OzNet is a **minimal infrastructure repository** designed to provide a clean fou
    https://home.ozkar.co
    ```
 
-2. **DNS Resolution**
-   - CNAME points to Cloudflare Tunnel
-   - Handled by Cloudflare DNS
-
-3. **Cloudflare Processing**
+2. **Cloudflare Processing**
    - TLS termination
    - DDoS protection
    - WAF rules applied
 
-4. **Tunnel Routing**
+3. **Tunnel Routing**
    - Cloudflare Tunnel forwards to `localhost:3000`
    - Based on `tunnel-config.yml` ingress rules
 
-5. **Service Response**
+4. **Service Response**
    - Service listens on localhost only
    - Returns response through tunnel
    - Cloudflare encrypts and delivers to user
@@ -94,36 +84,6 @@ OzNet is a **minimal infrastructure repository** designed to provide a clean fou
 - No local SSL certificates needed
 - Cloudflare handles all security
 - Services remain isolated on localhost
-
----
-
-## 🔒 Internal Access Flow
-
-Internal access uses ZeroTier for VPN connectivity:
-
-```
-┌──────────────┐
-│  ZeroTier    │
-│  Network     │
-│ 172.26.0.0/24│
-└──────┬───────┘
-       │
-   ┌───┴────┐
-   │        │
-   ▼        ▼
-home.oznet  server.oznet
-172.26.0.1  172.26.0.2
-```
-
-**Usage:**
-- Game servers
-- VPN access
-- Internal tools
-- **NOT for public web services**
-
-**DNS Entries:**
-- `home.oznet` → 172.26.0.1 (This hub)
-- `server.oznet` → 172.26.0.2 (Main server)
 
 ---
 
@@ -146,7 +106,7 @@ All business services follow this pattern:
 3. **Health Endpoint**
    - Implements `GET /health`
    - Returns HTTP 200 when healthy
-   - Used for monitoring
+   - Used for monitoring by Home/Hub
 
 4. **Cloudflare Tunnel Entry**
    ```yaml
@@ -177,7 +137,7 @@ app.get('/health', (req, res) => {
 
 ---
 
-## 🔧 Configuration Files
+## 🔧 Configuration
 
 ### Cloudflare Tunnel
 
@@ -188,33 +148,19 @@ ingress:
   - hostname: home.ozkar.co
     service: http://localhost:3000
   
-  - hostname: files.ozkar.co
+  - hostname: myservice.ozkar.co
     service: http://localhost:3001
   
   # Catch-all
   - service: http_status:404
 ```
 
+Services defined here are automatically loaded into the dashboard. No manual updates to `server.js` required.
+
 **To add a service:**
 1. Deploy service on localhost:PORT
-2. Add ingress entry
-3. Configure DNS CNAME
-4. Restart cloudflared
-
-### DNS Configuration
-
-**Location**: `config/dnsmasq.conf`
-
-Minimal configuration:
-```
-address=/home.oznet/172.26.0.1
-address=/server.oznet/172.26.0.2
-```
-
-**Do NOT add:**
-- Public web services
-- Services accessed via Cloudflare
-- Temporary services
+2. Add ingress entry to `tunnel-config.yml`
+3. Restart cloudflared
 
 ---
 
@@ -222,18 +168,7 @@ address=/server.oznet/172.26.0.2
 
 ### Service Health Checks
 
-The Home/Hub service monitors all configured services:
-
-```javascript
-// In server.js
-const SERVICES = [
-  {
-    name: 'My Service',
-    url: 'http://localhost:3001',
-    description: 'Service description'
-  }
-];
-```
+The Home/Hub service monitors all services defined in `tunnel-config.yml`:
 
 **Health check logic:**
 1. HTTP GET to `{url}/health`
@@ -241,10 +176,7 @@ const SERVICES = [
 3. Timeout after 5 seconds
 4. Display on dashboard
 
-**Special case - OctoPrint:**
-- Use `/` or `/api/version` instead
-- Only check HTTP status code
-- Don't parse response body
+Services are loaded dynamically from `infrastructure/cloudflare/tunnel-config.yml` at startup.
 
 ---
 
@@ -267,18 +199,9 @@ const SERVICES = [
    - Add ingress entry with hostname and port
    - Restart cloudflared: `systemctl restart cloudflared`
 
-4. **Configure DNS**
-   ```bash
-   cloudflared tunnel route dns oznet myservice.ozkar.co
-   ```
-
-5. **Update Home/Hub**
-   - Add service to `SERVICES` array in `server.js`
-   - Restart home service
-
-6. **Verify**
+4. **Verify**
    - Check service at `https://myservice.ozkar.co`
-   - Verify status on Home/Hub dashboard
+   - Verify status on Home/Hub dashboard (updates automatically)
 
 ---
 
@@ -290,12 +213,6 @@ const SERVICES = [
 - **WAF**: Available through Cloudflare
 - **Firewall**: No inbound ports needed
 - **Isolation**: Services on localhost only
-
-### Internal Services
-- **Network**: ZeroTier encrypted tunnel
-- **Access**: Controlled by ZeroTier ACLs
-- **DNS**: Internal only (dnsmasq)
-- **No HTTPS**: VPN already encrypted
 
 ---
 
@@ -333,8 +250,6 @@ const SERVICES = [
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | Tunnel | Cloudflare Tunnel | Public access, TLS |
-| DNS | dnsmasq | Internal name resolution |
-| VPN | ZeroTier | Private network |
 | Home/Hub | Node.js + Express | Status & docs |
 | Config | YAML | Declarative setup |
 
@@ -344,21 +259,15 @@ const SERVICES = [
 
 ```
 OzNet/
-├── config/
-│   └── dnsmasq.conf          # Minimal DNS config
 ├── documentation/
-│   ├── ARCHITECTURE.md       # This file
-│   └── TRANSITION.md         # What changed
+│   └── ARCHITECTURE.md       # This file
 ├── infrastructure/
-│   ├── cloudflare/
-│   │   ├── tunnel-config.yml # Tunnel routing
-│   │   └── README.md         # Setup guide
-│   └── scripts/
-│       ├── cleanup-dns.sh
-│       ├── cleanup-nginx.sh
-│       └── cleanup-ssl.sh
+│   └── cloudflare/
+│       ├── tunnel-config.yml # Tunnel routing (source of truth for services)
+│       └── README.md         # Setup guide
 ├── views/                    # Templates
 ├── server.js                 # Home/Hub service
+├── run.sh                    # Startup script
 ├── package.json              # Dependencies
 └── README.md                 # Getting started
 ```
@@ -370,14 +279,11 @@ OzNet/
 **Q: Why not use Nginx?**
 A: Cloudflare Tunnel replaces it. No need for local reverse proxy.
 
-**Q: Why no internal SSL?**
-A: Cloudflare provides trusted certificates. Internal traffic uses VPN encryption.
-
 **Q: Where are the services?**
 A: In external repositories. This is infrastructure only.
 
 **Q: How to add a service?**
-A: Deploy it independently, add to tunnel config, update Home/Hub monitoring.
+A: Deploy it independently, add to tunnel config, the dashboard updates automatically.
 
 **Q: What about databases?**
 A: Deploy with the service that needs them, not here.
@@ -387,5 +293,5 @@ A: No. Each service gets its own subdomain. Cleaner and more flexible.
 
 ---
 
-**Last Updated**: December 2024  
+**Last Updated**: March 2026  
 **Version**: 2.0.0

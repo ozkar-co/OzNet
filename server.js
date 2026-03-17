@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
+const fs = require('fs');
+const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 
 const app = express();
@@ -35,30 +37,24 @@ app.use(compression());
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Service configuration
-// Add your external services here as they are deployed
-const SERVICES = [
-  {
-    name: 'Home/Hub',
-    url: 'http://localhost:3000',
-    description: 'This service - Infrastructure hub and status dashboard',
-    external: false
-  },
-  {
-    name: 'OctoPrint',
-    url: 'http://localhost:5000',
-    healthEndpoint: '/', // OctoPrint doesn't have /health, use root
-    description: '3D printer management',
-    external: true
-  },
-  // Example: Add external services like this
-  // {
-  //   name: 'Files Server',
-  //   url: 'http://localhost:3001',
-  //   description: 'File sharing and management',
-  //   external: true
-  // }
-];
+// Load services dynamically from Cloudflare Tunnel config
+function loadServices() {
+  const configPath = path.join(__dirname, 'infrastructure/cloudflare/tunnel-config.yml');
+  try {
+    const config = yaml.load(fs.readFileSync(configPath, 'utf8'));
+    return config.ingress
+      .filter(rule => rule.hostname && !rule.service.startsWith('http_status:'))
+      .map(rule => ({
+        name: rule.hostname,
+        url: rule.service
+      }));
+  } catch (err) {
+    console.error('Failed to load tunnel config from', configPath, ':', err.message);
+    process.exit(1);
+  }
+}
+
+const SERVICES = loadServices();
 
 // Health check function
 async function checkServiceHealth(service) {
@@ -66,9 +62,7 @@ async function checkServiceHealth(service) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
-    // Use custom health endpoint if specified, otherwise use /health
-    const healthEndpoint = service.healthEndpoint || '/health';
-    const response = await fetch(`${service.url}${healthEndpoint}`, {
+    const response = await fetch(`${service.url}/health`, {
       signal: controller.signal,
       method: 'GET'
     });
