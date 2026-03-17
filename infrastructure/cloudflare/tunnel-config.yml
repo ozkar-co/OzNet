@@ -11,6 +11,11 @@ credentials-file: /home/oz/.cloudflared/c91360d5-d1e4-4856-8ef9-baad45962f23.jso
 
 # Ingress rules - route traffic from public domains to local services
 ingress:
+  
+  # Personal site
+  - hostname: www.ozkr.net
+    service: http://localhost:8000
+  
   # Home/Hub service - main dashboard and service status
   - hostname: home.ozkr.net
     service: http://localhost:3000
