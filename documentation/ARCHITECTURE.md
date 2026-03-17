@@ -107,12 +107,14 @@ All business services follow this pattern:
    - Implements `GET /health`
    - Returns HTTP 200 when healthy
    - Used for monitoring by Home/Hub
+   - For services with a non-standard health path, set `health_path` in the tunnel config
 
 4. **Cloudflare Tunnel Entry**
    ```yaml
    ingress:
      - hostname: myservice.ozkar.co
        service: http://localhost:PORT
+       health_path: /api/version  # Optional: custom health check path (defaults to /health)
    ```
 
 ### Example Service Structure
@@ -171,10 +173,17 @@ Services defined here are automatically loaded into the dashboard. No manual upd
 The Home/Hub service monitors all services defined in `tunnel-config.yml`:
 
 **Health check logic:**
-1. HTTP GET to `{url}/health`
+1. HTTP GET to `{url}{health_path}` (defaults to `{url}/health`)
 2. Check status code (200 = UP)
 3. Timeout after 5 seconds
 4. Display on dashboard
+
+To use a custom health check path, add `health_path` to the ingress rule:
+```yaml
+- hostname: myservice.ozkar.co
+  service: http://localhost:PORT
+  health_path: /api/version
+```
 
 Services are loaded dynamically from `infrastructure/cloudflare/tunnel-config.yml` at startup.
 
