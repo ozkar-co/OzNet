@@ -18,6 +18,7 @@ ingress:
   # OctoPrint - 3D printer management
   - hostname: 3dprint.ozkr.net
     service: http://localhost:5000
+    health_path: /api/version
   
   # OzRo API - Custom Ragnarok Server API
   - hostname: ozro-api.ozkr.net

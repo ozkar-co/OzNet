@@ -46,7 +46,8 @@ function loadServices() {
       .filter(rule => rule.hostname && !rule.service.startsWith('http_status:'))
       .map(rule => ({
         name: rule.hostname,
-        url: rule.service
+        url: rule.service,
+        healthPath: rule.health_path || '/health'
       }));
   } catch (err) {
     console.error('Failed to load tunnel config from', configPath, ':', err.message);
@@ -62,7 +63,7 @@ async function checkServiceHealth(service) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
-    const response = await fetch(`${service.url}/health`, {
+    const response = await fetch(`${service.url}${service.healthPath}`, {
       signal: controller.signal,
       method: 'GET'
     });
