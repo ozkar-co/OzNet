@@ -1,9 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
-# Configuración de rutas
-YAML_PATH="/home/oz/oznet/infrastructure/cloudflare/tunnel-config.yml"
-DEFAULT_CONF="/etc/cloudflared/config.yml"
-TUNNEL_NAME="ozkrnet"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=config.sh
+source "${SCRIPT_DIR}/config.sh"
 
 echo "--- 1. Verificando Link de Configuración ---"
 if [ ! -L "$DEFAULT_CONF" ]; then

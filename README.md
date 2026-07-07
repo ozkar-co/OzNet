@@ -142,11 +142,16 @@ app.get('/health', (req, res) => {
 
 ### 2. Add to Tunnel Config
 
-Edit `infrastructure/cloudflare/tunnel-config.yml`:
+```bash
+cd infrastructure/cloudflare
+./add-site.sh myservice 3001
+```
+
+Or edit `infrastructure/cloudflare/tunnel-config.yml` manually:
 
 ```yaml
 ingress:
-  - hostname: myservice.ozkar.co
+  - hostname: myservice.ozkr.net
     service: http://localhost:3001
 ```
 
@@ -154,9 +159,11 @@ The service will automatically appear in the Home/Hub dashboard.
 
 ### 3. Restart Services
 
+The `add-site.sh` script restarts services automatically. If you edited the config manually:
+
 ```bash
-systemctl restart cloudflared
-systemctl restart oznet-home
+sudo systemctl restart cloudflared
+sudo systemctl restart oznet-home
 ```
 
 ---

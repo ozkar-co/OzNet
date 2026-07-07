@@ -85,17 +85,47 @@ sudo journalctl -u cloudflared -f
 
 ## Adding New Services
 
+### Opción rápida (recomendada)
+
+Con el servicio corriendo en `localhost:PORT`:
+
+```bash
+cd infrastructure/cloudflare
+./add-site.sh <nombre> <puerto>
+```
+
+Ejemplo:
+
+```bash
+./add-site.sh mi-api 3004
+```
+
+El script hace todo automáticamente:
+1. Agrega la entrada en `tunnel-config.yml`
+2. Asegura el symlink en `/etc/cloudflared/config.yml`
+3. Crea la ruta DNS en Cloudflare
+4. Reinicia `cloudflared` (y `oznet-home` si está activo)
+
+Opciones adicionales:
+
+```bash
+./add-site.sh whisper 8001 --health-path /api/version
+./add-site.sh ozro-api 3001 --tls
+```
+
+### Manual
+
 When you deploy a new external service:
 
 1. Service runs on localhost:PORT
 2. Add entry to `tunnel-config.yml`:
    ```yaml
-   - hostname: myservice.ozkar.co
+   - hostname: myservice.ozkr.net
      service: http://localhost:PORT
    ```
 3. Add DNS record (if not using wildcard):
    ```bash
-   cloudflared tunnel route dns oznet myservice.ozkar.co
+   cloudflared tunnel route dns ozkrnet myservice.ozkr.net
    ```
 4. Reload cloudflared:
    ```bash
