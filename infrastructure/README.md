@@ -7,6 +7,9 @@ This directory contains all infrastructure-related configuration for OzNet.
 ```
 infrastructure/
 └── cloudflare/
+    ├── add-site.sh          # Crear un sitio nuevo (nombre + puerto)
+    ├── config.sh            # Configuración compartida de scripts
+    ├── setup.sh             # Sincronizar DNS de todos los hostnames
     ├── tunnel-config.yml    # Cloudflare Tunnel routing configuration (source of truth for services)
     └── README.md            # Setup guide for Cloudflare Tunnel
 ```
@@ -40,7 +43,14 @@ For more details:
 
 ## 🔄 Adding New Services
 
-When adding a new service:
+```bash
+cd infrastructure/cloudflare
+./add-site.sh <nombre> <puerto>
+```
+
+Example: `./add-site.sh mi-api 3004` creates `https://mi-api.ozkr.net` pointing to `localhost:3004`, configures DNS, and restarts cloudflared.
+
+When adding a new service manually:
 
 1. Deploy service in its own repository
 2. Configure to run on `localhost:PORT`
