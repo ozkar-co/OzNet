@@ -46,18 +46,27 @@ ingress:
   - hostname: lolchaos.ozkr.net
     service: http://localhost:3003
 
-  - hostname: ganando-api.ozkr.net
-    service: http://localhost:3004
-
-  # Koten backend
-  - hostname: koten-api.ozkr.net
-    service: http://localhost:3005
-  
-  # Koten frontend
+  # Koten all project
   - hostname: koten.ozkr.net
-    service: http://localhost:3006
+    service: http://localhost:3005
 
   # Catch-all rule (required) - returns 404 for unmatched requests
+  # fabricalc
+  - hostname: fabricalc.ozkr.net
+    service: http://localhost:3007
+
+  # meye-tools
+  - hostname: meye-tools.ozkr.net
+    service: http://localhost:3008
+
+  # slm
+  - hostname: slm.ozkr.net
+    service: http://localhost:8003
+
+  # tts
+  - hostname: tts.ozkr.net
+    service: http://localhost:8002
+
   - service: http_status:404
 
 # Tunnel settings
