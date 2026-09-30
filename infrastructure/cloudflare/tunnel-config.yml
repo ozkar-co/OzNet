@@ -14,6 +14,7 @@ ingress:
   
   # Personal site
   - hostname: www.ozkr.net
+    health_path: /api/health
     service: http://localhost:8000
   
   # Home/Hub service - main dashboard and service status
@@ -66,6 +67,14 @@ ingress:
   # tts
   - hostname: tts.ozkr.net
     service: http://localhost:8002
+
+  # ocr
+  - hostname: ocr.ozkr.net
+    service: http://localhost:8004
+
+  # embed
+  - hostname: embed.ozkr.net
+    service: http://localhost:8005
 
   - service: http_status:404
 
