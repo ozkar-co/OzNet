@@ -1,0 +1,96 @@
+# Servicios internos de OzNet
+# Servicios que NO se exponen a través de Cloudflare Tunnel (juegos, colas, etc.)
+#
+# Cada servicio declara cómo comprobar si está "ON":
+#
+#   type: tcp   -> Abre una conexión TCP a host:port. UP si el puerto acepta conexión.
+#                 Ideal para Minecraft (Java), Ragnarok y RabbitMQ (AMQP).
+#   type: udp   -> Mejor esfuerzo: envía un byte y detecta ICMP "port unreachable".
+#                 Fiable en localhost; para Core Keeper / Project Zomboid (solo UDP).
+#   type: http  -> GET a url+health_path, UP si responde 200.
+#                 Útil para el management de RabbitMQ.
+#
+# Campos: name, type, host (default: localhost), port, category, notes, url, health_path
+
+services:
+
+  - name: Minecraft (Java)
+    type: tcp
+    host: localhost
+    port: 25565
+    category: game
+    notes: "Puerto de juego por defecto"
+
+  - name: Ragnarok (Login Server)
+    type: tcp
+    host: localhost
+    port: 6900
+    category: game
+    notes: "Login-server"
+
+  - name: Ragnarok (Char Server)
+    type: tcp
+    host: localhost
+    port: 6121
+    category: game
+    notes: "Char-server"
+
+  - name: Ragnarok (Map Server)
+    type: tcp
+    host: localhost
+    port: 5121
+    category: game
+    notes: "Map-server"
+
+  - name: Core Keeper
+    type: udp
+    host: localhost
+    port: 27015
+    category: game
+    notes: "Solo UDP"
+
+  - name: Project Zomboid
+    type: udp
+    host: localhost
+    port: 16262
+    category: game
+    notes: "Solo UDP"
+
+  - name: RabbitMQ (AMQP)
+    type: tcp
+    host: localhost
+    port: 5672
+    category: queue
+    notes: "Cola para Meye"
+
+  - name: RabbitMQ Management
+    type: tcp
+    host: localhost
+    port: 15672
+    category: queue
+    notes: "UI/API"
+
+  - name: Mumble
+    type: tcp
+    host: localhost
+    port: 64738
+    category: voice
+    notes: "Servidor de Voz"
+
+  - name: Ollama
+    type: tcp
+    host: localhost
+    port: 11434
+    category: ai
+
+  - name: MariaDB/MySQL
+    type: tcp
+    host: 127.0.0.1
+    port: 3306
+    category: database
+
+  - name: MongoDB
+    type: tcp
+    host: 127.0.0.1
+    port: 27017
+    category: database

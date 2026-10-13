@@ -97,9 +97,11 @@ OzNet/
 ├── documentation/
 │   └── ARCHITECTURE.md           # System design
 ├── infrastructure/
-│   └── cloudflare/
-│       ├── tunnel-config.yml    # Tunnel routing config (source of truth for services)
-│       └── README.md            # Setup guide
+│   ├── cloudflare/
+│   │   ├── tunnel-config.yml    # Tunnel routing config (source of truth for services)
+│   │   └── README.md            # Setup guide
+│   └── services/
+│       └── internal-services.yml # Services NOT exposed via Cloudflare (games, queues)
 ├── views/                        # Web interface templates
 ├── server.js                     # Home/Hub service
 ├── run.sh                        # Startup script
@@ -165,6 +167,31 @@ The `add-site.sh` script restarts services automatically. If you edited the conf
 sudo systemctl restart cloudflared
 sudo systemctl restart oznet-home
 ```
+
+---
+
+## 🖥️ Internal Services (no Cloudflare)
+
+Game servers, message queues and other services that are **not** published through Cloudflare Tunnel are defined in `infrastructure/services/internal-services.yml`. They appear in a separate "Internal Services" section of the dashboard.
+
+Each entry declares how to check whether it is up:
+
+| `type` | How it checks | Use for |
+|--------|---------------|---------|
+| `tcp`  | Opens a TCP connection to `host:port` | Minecraft (Java), Ragnarok, RabbitMQ (AMQP) |
+| `udp`  | Best-effort: detects ICMP port-unreachable (reliable on localhost) | Core Keeper, Project Zomboid |
+| `http` | `GET url + health_path`, UP on HTTP 200 | RabbitMQ management API |
+
+```yaml
+services:
+  - name: Minecraft (Java)
+    type: tcp
+    host: localhost
+    port: 25565
+    category: game
+```
+
+Add a service by appending an entry and restarting `oznet-home`. `udp` checks only prove the port is not rejected by the OS; for a real game-level check the service needs its own query (e.g. Steam A2S).
 
 ---
 

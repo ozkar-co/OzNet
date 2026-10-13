@@ -5,6 +5,8 @@ const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
+const dgram = require('dgram');
 const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 
@@ -57,6 +59,24 @@ function loadServices() {
 
 const SERVICES = loadServices();
 
+// Load internal services (not exposed through Cloudflare Tunnel)
+function loadInternalServices() {
+  const configPath = path.join(__dirname, 'infrastructure/services/internal-services.yml');
+  try {
+    if (!fs.existsSync(configPath)) return [];
+    const config = yaml.load(fs.readFileSync(configPath, 'utf8')) || {};
+    return (config.services || []).map(service => ({
+      host: 'localhost',
+      ...service
+    }));
+  } catch (err) {
+    console.error('Failed to load internal services from', configPath, ':', err.message);
+    return [];
+  }
+}
+
+const INTERNAL_SERVICES = loadInternalServices();
+
 // Health check function
 async function checkServiceHealth(service) {
   try {
@@ -87,17 +107,96 @@ async function checkServiceHealth(service) {
   }
 }
 
+// Node sometimes reports ECONNREFUSED with an empty message, keep the code
+function describeError(err) {
+  return err.code || err.message || String(err);
+}
+
+// TCP health check: UP when the port accepts a connection
+function checkTcpHealth(service) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const socket = new net.Socket();
+    let done = false;
+
+    const finish = (status, extra = {}) => {
+      if (done) return;
+      done = true;
+      socket.destroy();
+      resolve({ ...service, status, responseTime: Date.now() - start, ...extra });
+    };
+
+    socket.setTimeout(5000);
+    socket.once('connect', () => finish('UP'));
+    socket.once('timeout', () => finish('DOWN', { error: 'timeout' }));
+    socket.once('error', (err) => finish('DOWN', { error: describeError(err) }));
+    socket.connect(service.port, service.host);
+  });
+}
+
+// UDP best-effort check: a closed local port answers with ICMP port-unreachable,
+// an open port stays silent. Only reliable against the local machine.
+function checkUdpHealth(service) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const socket = dgram.createSocket('udp4');
+    let done = false;
+
+    const finish = (status, extra = {}) => {
+      if (done) return;
+      done = true;
+      try { socket.close(); } catch (_) { /* already closed */ }
+      resolve({ ...service, status, responseTime: Date.now() - start, ...extra });
+    };
+
+    socket.once('error', (err) => finish('DOWN', { error: describeError(err) }));
+
+    try {
+      socket.connect(service.port, service.host, () => {
+        socket.send(Buffer.from([0x00]), (err) => {
+          if (err) finish('DOWN', { error: describeError(err) });
+        });
+      });
+    } catch (err) {
+      finish('DOWN', { error: describeError(err) });
+    }
+
+    // No ICMP error within the window: assume the port is open
+    setTimeout(() => finish('UP'), 1500);
+  });
+}
+
+// Dispatch an internal service to the right checker based on its type
+function checkInternalService(service) {
+  switch ((service.type || 'tcp').toLowerCase()) {
+    case 'http':
+      return checkServiceHealth(service);
+    case 'udp':
+      return checkUdpHealth(service);
+    case 'tcp':
+      return checkTcpHealth(service);
+    default:
+      return Promise.resolve({
+        ...service,
+        status: 'UNKNOWN',
+        error: `Unknown check type: ${service.type}`
+      });
+  }
+}
+
 // Routes
 app.get('/', async (req, res) => {
   try {
     // Check all services in parallel
-    const serviceChecks = await Promise.all(
-      SERVICES.map(service => checkServiceHealth(service))
-    );
-    
+    const [serviceChecks, internalChecks] = await Promise.all([
+      Promise.all(SERVICES.map(service => checkServiceHealth(service))),
+      Promise.all(INTERNAL_SERVICES.map(service => checkInternalService(service)))
+    ]);
+
     res.render('index', {
       title: 'OzNet - Infrastructure Hub',
-      services: serviceChecks
+      services: serviceChecks,
+      internalServices: internalChecks
     });
   } catch (error) {
     console.error('Error rendering home page:', error);
@@ -113,13 +212,15 @@ app.get('/health', (req, res) => {
 // API endpoint to check all services
 app.get('/api/services/status', async (req, res) => {
   try {
-    const serviceChecks = await Promise.all(
-      SERVICES.map(service => checkServiceHealth(service))
-    );
-    
+    const [serviceChecks, internalChecks] = await Promise.all([
+      Promise.all(SERVICES.map(service => checkServiceHealth(service))),
+      Promise.all(INTERNAL_SERVICES.map(service => checkInternalService(service)))
+    ]);
+
     res.json({
       timestamp: new Date().toISOString(),
-      services: serviceChecks
+      services: serviceChecks,
+      internalServices: internalChecks
     });
   } catch (error) {
     console.error('Error checking services:', error);

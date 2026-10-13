@@ -59,6 +59,43 @@
   {{/if}}
 </section>
 
+<section>
+  <h2>🖥️ Internal Services</h2>
+  <p>Services not exposed through Cloudflare Tunnel, defined in <code>infrastructure/services/internal-services.yml</code>:</p>
+
+  {{#if internalServices}}
+    <div class="service-grid">
+      {{#each internalServices}}
+        <div class="card">
+          <h3>
+            {{#if url}}
+              <a href="{{url}}" target="_blank" rel="noopener noreferrer">{{name}}</a>
+            {{else}}
+              {{name}}
+            {{/if}}
+          </h3>
+          <p>
+            <small>
+              <code>{{#if url}}{{url}}{{else}}{{host}}:{{port}}{{/if}}</code>
+              {{#if type}} · {{type}}{{/if}}
+              {{#if category}} · {{category}}{{/if}}
+            </small>
+          </p>
+          {{#if notes}}<p><small>{{notes}}</small></p>{{/if}}
+          <p>
+            <strong>Status:</strong>
+            <span class="status-badge {{#if (eq status 'UP')}}status-up{{else}}{{#if (eq status 'UNKNOWN')}}status-unknown{{else}}status-down{{/if}}{{/if}}">
+              {{status}}
+            </span>
+          </p>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p><em>No internal services defined.</em></p>
+  {{/if}}
+</section>
+
 <section class="architecture-section card">
   <h2>🎯 Service Organization</h2>
   
