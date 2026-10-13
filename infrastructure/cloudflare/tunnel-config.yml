@@ -76,6 +76,10 @@ ingress:
   - hostname: embed.ozkr.net
     service: http://localhost:8005
 
+  # pdfgen
+  - hostname: pdfgen.ozkr.net
+    service: http://localhost:3009
+
   - service: http_status:404
 
 # Tunnel settings
